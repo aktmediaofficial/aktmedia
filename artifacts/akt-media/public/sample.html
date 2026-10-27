@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <title>AKT MEDIA PRODUCTIONS // Immersive Audio Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -265,8 +266,8 @@
         const ARTISTS = {
             "ATEE": { image: "/images/atee.jpg", tags: "Soul · Hip-hop · Trap" },
             "NAZZ": { image: "/images/nazz.jpg", tags: "3 Step · Afrohouse · House · Piano" },
-            "BHUDDA V DIME": { image: "", tags: "" },
-            "MAGESH": { image: "", tags: "" }
+            "BHUDDA V DIME": { name: "Dime", image: "/images/dime.jpg", tags: "" },
+            "MAGESH": { image: "/images/magesh.jpg", tags: "" }
         };
         let currentTrackIndex = 0, isPlaying = false, audioCtx = null, analyser = null, sourceNode = null, vizMode = 0, synthOscillator = null, ambientActive = false;
         const loadingOverlay = document.getElementById('loading-overlay'), loaderProgressBar = document.getElementById('loader-progress-bar'), loaderPercentage = document.getElementById('loader-percentage'), loaderStatus = document.getElementById('loader-status'), appContainer = document.getElementById('app-container'), audioPlayer = document.getElementById('audio-player'), mainPlayBtn = document.getElementById('main-play-btn'), heroPlayBtn = document.getElementById('hero-play-btn'), heroActionPlay = document.getElementById('hero-action-play'), prevBtn = document.getElementById('prev-btn'), nextBtn = document.getElementById('next-btn'), seekBar = document.getElementById('seek-bar'), currentTimeEl = document.getElementById('current-time'), totalDurationEl = document.getElementById('total-duration'), volumeSlider = document.getElementById('volume-slider'), muteBtn = document.getElementById('mute-btn'), volumeIcon = document.getElementById('volume-icon'), mainAlbumArt = document.getElementById('main-album-art'), heroTrackTitle = document.getElementById('hero-track-title'), heroTrackArtist = document.getElementById('hero-track-artist'), playerThumb = document.getElementById('player-thumb'), playerTitle = document.getElementById('player-title'), playerArtist = document.getElementById('player-artist'), heroVinyl = document.getElementById('hero-vinyl'), loaderVinyl = document.getElementById('loader-vinyl'), canvas = document.getElementById('canvas-visualizer'), canvasCtx = canvas.getContext('2d'), ambientToggleBtn = document.getElementById('ambient-toggle-btn');
@@ -302,10 +303,10 @@
         function renderDiscover(){
             const map={}; PLAYLIST.forEach((t,i)=>artistsOf(t).forEach(a=>{ const k=a.toUpperCase(); (map[k]=map[k]||{name:a,tracks:[]}).tracks.push(i); }));
             const artists=Object.values(map);
-            document.getElementById('artist-grid').innerHTML=artists.map(a=>{ const info=ARTISTS[a.name.toUpperCase()]||{}; const initials=a.name.split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
-                const avatar=info.image?`<img src="${esc(info.image)}" alt="${esc(a.name)}" class="w-16 h-16 rounded-full object-cover border border-slate-700 shrink-0">`:`<div class="w-16 h-16 rounded-full bg-gradient-to-br from-neonGreen to-neonCyan flex items-center justify-center text-slate-950 font-extrabold text-lg shrink-0">${esc(initials)}</div>`;
+            document.getElementById('artist-grid').innerHTML=artists.map(a=>{ const info=ARTISTS[a.name.toUpperCase()]||{}; const profileName=info.name||a.name; const initials=profileName.split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+                const avatar=info.image?`<img src="${esc(info.image)}" alt="${esc(profileName)}" class="w-16 h-16 rounded-full object-cover border border-slate-700 shrink-0">`:`<div class="w-16 h-16 rounded-full bg-gradient-to-br from-neonGreen to-neonCyan flex items-center justify-center text-slate-950 font-extrabold text-lg shrink-0">${esc(initials)}</div>`;
                 const chips=a.tracks.map(i=>`<button onclick="selectTrack(${i})" class="px-2.5 py-1 rounded-full text-[11px] bg-slate-800/70 hover:bg-neonGreen/20 text-slate-300 hover:text-white border border-slate-700/60 transition-colors">${esc(PLAYLIST[i].title)}</button>`).join('');
-                return `<div class="glass-panel rounded-2xl border border-slate-800/60 p-4 flex gap-4">${avatar}<div class="min-w-0 flex-1"><h4 class="text-base font-bold text-white truncate">${esc(a.name)}</h4>${info.tags?`<p class="text-xs text-slate-400">${esc(info.tags)}</p>`:''}<p class="text-[11px] text-slate-500 mt-0.5">${a.tracks.length} ${a.tracks.length===1?'track':'tracks'}</p><div class="mt-3 flex flex-wrap gap-2">${chips}</div></div></div>`; }).join('');
+                return `<div class="glass-panel rounded-2xl border border-slate-800/60 p-4 flex gap-4">${avatar}<div class="min-w-0 flex-1"><h4 class="text-base font-bold text-white truncate">${esc(profileName)}</h4>${info.tags?`<p class="text-xs text-slate-400">${esc(info.tags)}</p>`:''}<p class="text-[11px] text-slate-500 mt-0.5">${a.tracks.length} ${a.tracks.length===1?'track':'tracks'}</p><div class="mt-3 flex flex-wrap gap-2">${chips}</div></div></div>`; }).join('');
             document.getElementById('artist-count').textContent=artists.length+(artists.length===1?' Artist':' Artists');
             document.getElementById('meta-container').innerHTML=PLAYLIST.map((t,i)=>{ const f=[['Type',t.type==='beat'?'Beat':'Song'],['Artists',artistsOf(t).join(', ')],['Duration',t.duration],['Added',fmtDate(t.added)],['Genre',t.genre],['BPM',t.bpm],['Key',t.key],['Year',t.year],['Producer',t.producer]].filter(x=>x[1]);
                 return `<div class="glass-panel rounded-2xl border border-slate-800/60 p-4 flex gap-4"><img src="${esc(t.cover)}" alt="" class="w-24 h-24 rounded-xl object-cover shrink-0 border border-slate-700/50"><div class="min-w-0 flex-1"><h4 class="text-sm font-bold text-white truncate">${esc(t.title)}</h4><div class="mt-2 grid grid-cols-2 gap-x-4 gap-y-2">${f.map(x=>`<div class="min-w-0"><div class="text-[10px] uppercase tracking-wider text-slate-500">${x[0]}</div><div class="text-xs text-slate-200 truncate">${esc(x[1])}</div></div>`).join('')}</div></div></div>`; }).join('');

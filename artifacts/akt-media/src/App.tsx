@@ -172,11 +172,6 @@ const engineers = [
   },
 ]
 
-const artists = [
-  { name: "Dime", image: "/images/dime.jpg" },
-  { name: "Magesh", image: "/images/magesh.jpg" },
-]
-
 type IconName = "mic" | "sliders" | "headphones" | "calendar" | "arrow"
 
 function Icon({ name }: { name: IconName }) {
@@ -297,7 +292,6 @@ export default function App() {
             <a href="#packages">Packages</a>
             <a href="#process">How it works</a>
             <a href="#engineers">Engineers</a>
-            <a href="#artists">Artists</a>
             <a href="#contact">Contact</a>
           </nav>
           <a
@@ -323,7 +317,6 @@ export default function App() {
               ["Packages", "#packages"],
               ["How it works", "#process"],
               ["Engineers", "#engineers"],
-              ["Artists", "#artists"],
               ["Book a session", "#book"],
             ].map(([label, href]) => (
               <a key={href} href={href} onClick={() => setMenuOpen(false)}>
@@ -557,46 +550,6 @@ export default function App() {
                 </div>
               </motion.article>
             ))}
-          </div>
-        </section>
-
-        <section className="section artists-section" id="artists" aria-labelledby="artists-title">
-          <div className="page-shell">
-            <div className="section-heading">
-              <div>
-                <p className="eyebrow">
-                  <span />
-                  AKT artist roster
-                </p>
-                <motion.h2 id="artists-title" {...revealProps()}>Artists at AKT.</motion.h2>
-              </div>
-              <motion.p {...revealProps(0.15)}>
-                Meet the artists.
-              </motion.p>
-            </div>
-            <div className="artists-grid">
-              {artists.map((artist, index) => (
-                <motion.article
-                  className="artist-card"
-                  key={artist.name}
-                  initial={{ opacity: 0, y: 50 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-60px" }}
-                  transition={{ duration: 0.65, delay: index * 0.12, ease: [0.25, 0.46, 0.45, 0.94] }}
-                  whileHover={{ y: -8 }}
-                >
-                  <div className="artist-card__image">
-                    <img src={artist.image} alt={`${artist.name}, artist`} loading="lazy" />
-                    <span className="artist-card__number">0{index + 1}</span>
-                    <span className="artist-card__mark" aria-hidden="true">AKT / ARTISTS</span>
-                  </div>
-                  <div className="artist-card__content">
-                    <h3>{artist.name}</h3>
-                    <p>Artist</p>
-                  </div>
-                </motion.article>
-              ))}
-            </div>
           </div>
         </section>
 

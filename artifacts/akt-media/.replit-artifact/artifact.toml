@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "AKT Media Productions"
+description = "A production studio website for booking recording, mixing, mastering, and beat services, with artist profiles for Dime and Magesh."
+version = "1.0.0"
+id = "artifacts/akt-media"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22914
+
+[services.development]
+run = "pnpm --filter @workspace/akt-media run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/akt-media", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/akt-media/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22914"
+BASE_PATH = "/"

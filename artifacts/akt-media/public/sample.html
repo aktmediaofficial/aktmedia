@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AKT MEDIA PRODUCTIONS // Immersive Audio Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        neonGreen: '#ff416c',
+                        neonCyan: '#e91e63',
+                        neonPurple: '#ff5d83',
+                        darkBase: '#090a0f',
+                        darkCard: 'rgba(18, 22, 36, 0.7)',
+                    },
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+                    animation: {
+                        'spin-slow': 'spin 12s linear infinite',
+                        'pulse-glow': 'pulseGlow 2s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        pulseGlow: {
+                            '0%': { filter: 'drop-shadow(0 0 10px rgba(0,255,136,0.3))' },
+                            '100%': { filter: 'drop-shadow(0 0 25px rgba(0,229,255,0.8))' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(10, 12, 18, 0.8); }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #ff416c; }
+        .glass-panel { background: rgba(15, 20, 32, 0.65); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .glass-nav { background: rgba(10, 12, 18, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .loader-bar { animation: equalizer 1s ease-in-out infinite alternate; }
+        .loader-bar:nth-child(1) { animation-delay: 0.1s; }
+        .loader-bar:nth-child(2) { animation-delay: 0.4s; }
+        .loader-bar:nth-child(3) { animation-delay: 0.2s; }
+        .loader-bar:nth-child(4) { animation-delay: 0.5s; }
+        .loader-bar:nth-child(5) { animation-delay: 0.3s; }
+        @keyframes equalizer { 0% { height: 12%; } 100% { height: 100%; } }
+        .ambient-bg { position: fixed; width: 100vw; height: 100vh; top: 0; left: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+        .glow-orb { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.15; transition: all 1s ease; }
+        .paused-spin { animation-play-state: paused !important; }
+        input[type="range"] { -webkit-appearance: none; background: rgba(255, 255, 255, 0.1); border-radius: 9999px; height: 4px; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; height: 12px; width: 12px; border-radius: 50%; background: #ff416c; cursor: pointer; box-shadow: 0 0 10px rgba(255, 65, 108, 0.8); transition: transform 0.1s; }
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.3); }
+    </style>
+</head>
+<body class="bg-darkBase text-slate-100 font-sans h-full overflow-hidden select-none">
+    <div class="ambient-bg">
+        <div id="orb-1" class="glow-orb bg-neonGreen w-[500px] h-[500px] -top-32 -left-32"></div>
+        <div id="orb-2" class="glow-orb bg-neonCyan w-[600px] h-[600px] -bottom-32 -right-32"></div>
+        <div id="orb-3" class="glow-orb bg-neonPurple w-[400px] h-[400px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+    </div>
+
+    <div id="loading-overlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-darkBase/95 backdrop-blur-2xl transition-opacity duration-1000">
+        <button id="ambient-toggle-btn" class="absolute top-8 right-8 flex items-center gap-2 px-4 py-2 rounded-full glass-panel text-xs text-slate-400 hover:text-neonGreen transition-colors border border-slate-700/50">
+            <i class="fa-solid fa-volume-xmark" id="ambient-icon"></i>
+            <span id="ambient-text">Ambient Preview Off</span>
+        </button>
+        <div class="relative flex flex-col items-center max-w-lg w-full px-6">
+            <div class="relative mb-10 flex items-center justify-center">
+                <div class="absolute w-40 h-40 rounded-full border border-neonGreen/20 animate-ping opacity-40"></div>
+                <div class="absolute w-56 h-56 rounded-full border border-neonCyan/15 animate-pulse"></div>
+                <div class="relative w-28 h-28 rounded-full bg-slate-900/70 border border-slate-800/80 shadow-2xl flex items-center justify-center shadow-[0_0_40px_rgba(255,65,108,0.15)]"><div class="absolute inset-0 rounded-full border border-white/5"></div><img src="/samples/akt-logo.png" alt="AKT Media Productions" class="w-16 h-16 object-contain drop-shadow-[0_0_30px_rgba(255,65,108,0.4)] animate-pulse"></div><div class="absolute -bottom-2 flex items-end justify-center gap-1 h-6 px-3 py-0.5 rounded-full bg-slate-950/80 border border-slate-800/70">
+                    <div class="loader-bar w-1 bg-neonGreen rounded-full"></div>
+                    <div class="loader-bar w-1 bg-neonCyan rounded-full"></div>
+                    <div class="loader-bar w-1 bg-neonGreen rounded-full"></div>
+                    <div class="loader-bar w-1 bg-neonPurple rounded-full"></div>
+                    <div class="loader-bar w-1 bg-neonCyan rounded-full"></div>
+                </div>
+            </div>
+            <div id="loader-title" class="flex items-center justify-center gap-3 mb-2 w-full whitespace-nowrap"><img src="/samples/akt-logo.png" alt="AKT Media Productions" class="h-10 w-auto object-contain shrink-0"><span class="[font-size:clamp(0.85rem,4.4vw,1.45rem)] font-extrabold tracking-wider whitespace-nowrap text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-300">AKT MEDIA PRODUCTIONS</span></div>
+            <p id="loader-status" class="text-xs uppercase tracking-widest text-slate-400 font-semibold mb-8">Synthesizing Audio Context...</p>
+            <div class="w-full bg-slate-800/60 rounded-full h-2.5 mb-4 p-0.5 overflow-hidden border border-slate-700/50 shadow-inner">
+                <div id="loader-progress-bar" class="bg-gradient-to-r from-neonGreen to-neonCyan h-full rounded-full w-0 transition-all duration-300 shadow-[0_0_12px_rgba(0,255,136,0.8)]"></div>
+            </div>
+            <div class="flex justify-between w-full text-xs font-mono text-slate-400 mb-8">
+                <span>SYSTEM STATUS</span>
+                <span id="loader-percentage" class="text-neonGreen font-bold">0%</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-container" class="relative z-10 flex flex-col h-screen opacity-0 transition-opacity duration-1000">
+        <header class="glass-nav h-16 px-6 flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-3">
+                <img src="/samples/akt-logo.png" alt="AKT Media Productions" class="h-9 w-auto object-contain"><span class="font-bold text-lg tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400 hidden sm:inline">AKT MEDIA PRODUCTIONS</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="/" class="text-xs text-slate-400 hover:text-neonGreen transition-colors">← Back to Main Site</a>
+            </div>
+        </header>
+
+        <div class="flex flex-1 overflow-hidden">
+            <aside class="w-20 lg:w-64 glass-panel border-r-0 border-y-0 flex flex-col justify-between py-6 px-4 shrink-0">
+                <div class="space-y-6">
+                    <div class="px-2 text-slate-400 uppercase text-[10px] font-extrabold tracking-widest hidden lg:block">Menu</div>
+                    <nav class="space-y-2">
+                        <a href="#" data-view="recent" class="nav-link flex items-center gap-4 px-3 py-3 rounded-xl bg-gradient-to-r from-neonGreen/10 to-transparent text-neonGreen font-semibold border-l-2 border-neonGreen">
+                            <i class="fa-solid fa-clock-rotate-left text-lg w-6 text-center"></i><span class="hidden lg:inline text-sm">Recent</span>
+                        </a>
+                        <a href="#" data-view="discover" class="nav-link flex items-center gap-4 px-3 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/30 transition-all">
+                            <i class="fa-solid fa-compass text-lg w-6 text-center"></i><span class="hidden lg:inline text-sm">Discover</span>
+                        </a>
+                        <a href="#" data-view="songs" class="nav-link flex items-center gap-4 px-3 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/30 transition-all">
+                            <i class="fa-solid fa-music text-lg w-6 text-center"></i><span class="hidden lg:inline text-sm">Songs</span>
+                        </a>
+                        <a href="#" data-view="beats" class="nav-link flex items-center gap-4 px-3 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/30 transition-all">
+                            <i class="fa-solid fa-drum text-lg w-6 text-center"></i><span class="hidden lg:inline text-sm">Beats</span>
+                        </a>
+                    </nav>
+                    <div class="pt-4 px-2 text-slate-400 uppercase text-[10px] font-extrabold tracking-widest hidden lg:block">Library</div>
+                    <nav class="space-y-2">
+                        <a href="#" class="flex items-center gap-4 px-3 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/30 transition-all">
+                            <i class="fa-solid fa-heart text-lg w-6 text-center"></i><span class="hidden lg:inline text-sm">Favorites</span>
+                        </a>
+                        <a href="#" class="flex items-center gap-4 px-3 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/30 transition-all">
+                            <i class="fa-solid fa-list-ul text-lg w-6 text-center"></i><span class="hidden lg:inline text-sm">Playlists</span>
+                        </a>
+                    </nav>
+                </div>
+                <div class="glass-panel p-3 rounded-xl border border-slate-800 hidden lg:block">
+                    <div class="flex items-center justify-between text-xs mb-2">
+                        <span class="text-slate-400">Visualizer Visual</span>
+                        <span id="viz-mode-name" class="text-neonCyan font-bold">Bars</span>
+                    </div>
+                    <button id="toggle-viz-mode" class="w-full py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition-colors">Change Render</button>
+                </div>
+            </aside>
+
+            <main class="flex-1 overflow-y-auto p-4 md:p-8">
+                <div data-view-panel="recent" class="space-y-8">
+                    <section class="relative rounded-3xl overflow-hidden glass-panel border border-slate-800/80 p-6 md:p-8 flex flex-col md:flex-row gap-8 items-center">
+                    <canvas id="canvas-visualizer" class="absolute inset-0 w-full h-full pointer-events-none opacity-40 z-0"></canvas>
+                    <div class="relative z-10 group shrink-0">
+                        <div id="main-album-wrapper" class="relative w-48 h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.8)] border border-slate-700/50">
+                            <img id="main-album-art" src="/samples/covers/dont-be-dumb.png" alt="Current Album Art" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                            <div class="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <button id="hero-play-btn" class="w-14 h-14 rounded-full bg-neonGreen text-slate-950 flex items-center justify-center shadow-lg hover:scale-110 transition-transform"><i class="fa-solid fa-play text-xl ml-1"></i></button>
+                            </div>
+                        </div>
+                        <div id="hero-vinyl" class="absolute -right-8 top-1/2 -translate-y-1/2 w-44 h-44 rounded-full bg-slate-950 border-2 border-slate-800 -z-10 animate-spin-slow paused-spin hidden sm:block shadow-xl">
+                            <div class="absolute inset-2 rounded-full border border-slate-800/60"></div>
+                            <div class="absolute inset-6 rounded-full border border-slate-800/60"></div>
+                            <div class="absolute inset-10 rounded-full border border-slate-800/60"></div>
+                            <div class="w-12 h-12 rounded-full bg-neonGreen/80 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border-2 border-slate-900"></div>
+                        </div>
+                    </div>
+                    <div class="relative z-10 flex-1 text-center md:text-left space-y-3">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neonGreen/10 border border-neonGreen/30 text-neonGreen text-xs font-semibold">
+                            <i class="fa-solid fa-bolt"></i> NOW FEATURED
+                        </div>
+                        <h2 id="hero-track-title" class="text-2xl md:text-4xl font-extrabold tracking-tight text-white">AKT Media Productions</h2>
+                        <p id="hero-track-artist" class="text-slate-400 font-medium text-sm md:text-base">Sample Player</p>
+                        <p class="text-xs text-slate-500 max-w-lg hidden md:block">Immerse yourself in high-frequency synth oscillations and analog basslines crafted for deep spatial audio visualization.</p>
+                        <div class="pt-2 flex flex-wrap items-center justify-center md:justify-start gap-4">
+                            <button id="hero-action-play" class="px-6 py-3 rounded-full bg-gradient-to-r from-neonGreen to-neonCyan text-slate-950 font-bold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(0,255,136,0.3)] hover:shadow-[0_0_30px_rgba(0,229,255,0.6)] hover:scale-105 transition-all"><i class="fa-solid fa-play mr-2"></i> Play Track</button>
+                            <button class="px-6 py-3 rounded-full glass-panel border border-slate-700 text-white font-bold text-xs uppercase tracking-wider hover:bg-slate-800 transition-all"><i class="fa-regular fa-heart mr-2"></i> Save Album</button>
+                        </div>
+                    </div>
+                </section>
+                    <section class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-bold text-white tracking-wide">Recently Added</h3>
+                        <span id="recent-count" class="text-xs text-slate-400"></span>
+                    </div>
+                    <div class="grid grid-cols-1 gap-2" id="recent-container"></div>
+                    </section>
+                </div>
+
+                <div data-view-panel="discover" class="hidden space-y-8">
+                    <section class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-bold text-white tracking-wide">Artist Profiles</h3>
+                        <span id="artist-count" class="text-xs text-slate-400"></span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" id="artist-grid"></div>
+                    </section>
+                    <section class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-bold text-white tracking-wide">Song Details</h3>
+                        <span id="meta-count" class="text-xs text-slate-400"></span>
+                    </div>
+                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4" id="meta-container"></div>
+                    </section>
+                </div>
+
+                <div data-view-panel="songs" class="hidden space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-bold text-white tracking-wide">Songs</h3>
+                        <span id="songs-count" class="text-xs text-slate-400"></span>
+                    </div>
+                    <div class="grid grid-cols-1 gap-2" id="songs-container"></div>
+                </div>
+
+                <div data-view-panel="beats" class="hidden space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-bold text-white tracking-wide">Beats</h3>
+                        <span id="beats-count" class="text-xs text-slate-400"></span>
+                    </div>
+                    <div class="grid grid-cols-1 gap-2" id="beats-container"></div>
+                </div>
+            </main>
+        </div>
+
+        <footer class="glass-nav h-24 px-4 md:px-8 flex items-center justify-between shrink-0 z-20 border-t border-slate-800/80">
+            <div class="flex items-center gap-4 w-1/4 min-w-[180px]">
+                <img id="player-thumb" src="/samples/covers/dont-be-dumb.png" class="w-14 h-14 rounded-xl object-cover border border-slate-800 shadow-md shrink-0" alt="Current Track">
+                <div class="overflow-hidden">
+                    <h4 id="player-title" class="text-sm font-bold text-white truncate">AKT Media Productions</h4>
+                    <p id="player-artist" class="text-xs text-slate-400 truncate">Sample Player</p>
+                </div>
+                <button class="text-slate-500 hover:text-neonGreen transition-colors hidden sm:block"><i class="fa-regular fa-heart"></i></button>
+            </div>
+            <div class="flex flex-col items-center justify-center gap-2 w-2/4 max-w-xl">
+                <div class="flex items-center gap-6">
+                    <button id="shuffle-btn" class="text-slate-500 hover:text-neonGreen transition-colors text-sm"><i class="fa-solid fa-shuffle"></i></button>
+                    <button id="prev-btn" class="text-slate-300 hover:text-white transition-colors text-lg"><i class="fa-solid fa-backward-step"></i></button>
+                    <button id="main-play-btn" class="w-11 h-11 rounded-full bg-gradient-to-r from-neonGreen to-neonCyan text-slate-950 flex items-center justify-center shadow-[0_0_15px_rgba(0,255,136,0.4)] hover:scale-105 transition-transform"><i class="fa-solid fa-play text-base ml-0.5"></i></button>
+                    <button id="next-btn" class="text-slate-300 hover:text-white transition-colors text-lg"><i class="fa-solid fa-forward-step"></i></button>
+                    <button id="repeat-btn" class="text-slate-500 hover:text-neonGreen transition-colors text-sm"><i class="fa-solid fa-repeat"></i></button>
+                </div>
+                <div class="flex items-center gap-3 w-full text-[11px] font-mono text-slate-400">
+                    <span id="current-time">0:00</span>
+                    <input id="seek-bar" type="range" min="0" max="100" value="0" class="w-full">
+                    <span id="total-duration">0:00</span>
+                </div>
+            </div>
+            <div class="flex items-center justify-end gap-3 w-1/4 min-w-[140px]">
+                <button id="mute-btn" class="text-slate-400 hover:text-neonGreen transition-colors text-sm"><i id="volume-icon" class="fa-solid fa-volume-high"></i></button>
+                <input id="volume-slider" type="range" min="0" max="1" step="0.01" value="0.7" class="w-20 hidden sm:block">
+            </div>
+        </footer>
+    </div>
+
+    <audio id="audio-player" crossorigin="anonymous"></audio>
+
+    <script>
+                                // ==========================================================================
+        //  TRACK LIBRARY  -  add new music and beats here
+        //    type:  "song" (appears in Songs) or "beat" (appears in Beats)
+        //    added: YYYY-MM-DD  (newest is shown first in Recent)
+        //    optional extras shown in Discover > Song Details:
+        //           genre, bpm, key, year, producer
+        // ==========================================================================
+        const PLAYLIST = [
+            { id: 1, type: "song", title: "Don't Be Dumb", artist: "ATEE", added: "2026-10-27", duration: "", cover: "/samples/covers/dont-be-dumb.png", color: "#ffffff", src: "/samples/Don't Be Dumb.m4a" },
+            { id: 2, type: "song", title: "Ekseni", artist: "ATEE & BHUDDA V DIME", added: "2026-10-27", duration: "", cover: "/samples/covers/ekseni.png", color: "#ffffff", src: "/samples/Ekseni(4).mp3" },
+            { id: 3, type: "song", title: "Masambe", artist: "ATEE", added: "2026-10-27", duration: "", cover: "/samples/covers/masambe.png", color: "#ffffff", src: "/samples/Masambe(2).m4a" },
+            { id: 4, type: "song", title: "Money Moves", artist: "NAZZ, ATEE, MAGESH", added: "2026-10-27", duration: "", cover: "/samples/covers/money-moves.png", color: "#ffffff", src: "/samples/Money Moves(3).m4a" }
+        ];
+        // Artist profiles (Discover). Key = artist name in CAPS. image/tags are optional.
+        const ARTISTS = {
+            "ATEE": { image: "/images/atee.jpg", tags: "Soul · Hip-hop · Trap" },
+            "NAZZ": { image: "/images/nazz.jpg", tags: "3 Step · Afrohouse · House · Piano" },
+            "BHUDDA V DIME": { image: "", tags: "" },
+            "MAGESH": { image: "", tags: "" }
+        };
+        let currentTrackIndex = 0, isPlaying = false, audioCtx = null, analyser = null, sourceNode = null, vizMode = 0, synthOscillator = null, ambientActive = false;
+        const loadingOverlay = document.getElementById('loading-overlay'), loaderProgressBar = document.getElementById('loader-progress-bar'), loaderPercentage = document.getElementById('loader-percentage'), loaderStatus = document.getElementById('loader-status'), appContainer = document.getElementById('app-container'), audioPlayer = document.getElementById('audio-player'), mainPlayBtn = document.getElementById('main-play-btn'), heroPlayBtn = document.getElementById('hero-play-btn'), heroActionPlay = document.getElementById('hero-action-play'), prevBtn = document.getElementById('prev-btn'), nextBtn = document.getElementById('next-btn'), seekBar = document.getElementById('seek-bar'), currentTimeEl = document.getElementById('current-time'), totalDurationEl = document.getElementById('total-duration'), volumeSlider = document.getElementById('volume-slider'), muteBtn = document.getElementById('mute-btn'), volumeIcon = document.getElementById('volume-icon'), mainAlbumArt = document.getElementById('main-album-art'), heroTrackTitle = document.getElementById('hero-track-title'), heroTrackArtist = document.getElementById('hero-track-artist'), playerThumb = document.getElementById('player-thumb'), playerTitle = document.getElementById('player-title'), playerArtist = document.getElementById('player-artist'), heroVinyl = document.getElementById('hero-vinyl'), loaderVinyl = document.getElementById('loader-vinyl'), canvas = document.getElementById('canvas-visualizer'), canvasCtx = canvas.getContext('2d'), ambientToggleBtn = document.getElementById('ambient-toggle-btn');
+        window.addEventListener('DOMContentLoaded', ()=>{ document.querySelectorAll('[data-view]').forEach(a=>a.addEventListener('click',e=>{ e.preventDefault(); showView(a.dataset.view); })); renderPlaylist(); setupCanvasSize(); loadDurations(); runPreloaderSimulation(); });
+        window.addEventListener('resize', setupCanvasSize);
+        function runPreloaderSimulation(){ let p=0; const statuses=["Initializing Audio Engine...","Decoding Frequency Buffers...","Preloading Soundwaves...","Building Visualizer Canvas...","System Ready."]; const iv=setInterval(()=>{ p+=Math.floor(Math.random()*8)+4; if(p>=100){p=100;clearInterval(iv);onLoadingComplete();} loaderProgressBar.style.width=p+'%'; loaderPercentage.textContent=p+'%'; const si=Math.min(Math.floor(p/100*statuses.length),statuses.length-1); loaderStatus.textContent=statuses[si]; },90); }
+        function onLoadingComplete(){ loaderStatus.textContent='System Ready.'; setTimeout(enterPlayer,700); }
+        ambientToggleBtn.addEventListener('click',()=>{ ambientActive=!ambientActive; const icon=document.getElementById('ambient-icon'); const text=document.getElementById('ambient-text'); if(ambientActive){ icon.className='fa-solid fa-volume-high text-neonGreen'; text.textContent='Ambient Preview On'; startAmbientPreview(); } else { icon.className='fa-solid fa-volume-xmark'; text.textContent='Ambient Preview Off'; stopAmbientPreview(); } });
+        function startAmbientPreview(){ try { const ctx=new (window.AudioContext||window.webkitAudioContext)(); const osc=ctx.createOscillator(); const gain=ctx.createGain(); osc.type='sine'; osc.frequency.setValueAtTime(110,ctx.currentTime); gain.gain.setValueAtTime(0.01,ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.08,ctx.currentTime+2); osc.connect(gain); gain.connect(ctx.destination); osc.start(); synthOscillator={ctx,osc,gain}; } catch(e){} }
+        function stopAmbientPreview(){ if(synthOscillator){ try { synthOscillator.gain.gain.exponentialRampToValueAtTime(0.001,synthOscillator.ctx.currentTime+0.5); setTimeout(()=>{try{synthOscillator.osc.stop();synthOscillator.ctx.close();}catch(e){} synthOscillator=null;},500); } catch(e){} } }
+        function enterPlayer(){ stopAmbientPreview(); loadingOverlay.classList.add('opacity-0'); setTimeout(()=>{ loadingOverlay.classList.add('hidden'); appContainer.classList.remove('opacity-0'); loadTrack(recentOrder()[0]||0); setupCanvasSize(); },1000); }
+        function initAudioContext(){ if(!audioCtx){ const AC=window.AudioContext||window.webkitAudioContext; audioCtx=new AC(); analyser=audioCtx.createAnalyser(); analyser.fftSize=128; sourceNode=audioCtx.createMediaElementSource(audioPlayer); sourceNode.connect(analyser); analyser.connect(audioCtx.destination); drawVisualizer(); } }
+        function setupCanvasSize(){ const c=canvas.parentElement; canvas.width=c.clientWidth; canvas.height=c.clientHeight; }
+        function drawVisualizer(){ requestAnimationFrame(drawVisualizer); if(!analyser)return; const buf=analyser.frequencyBinCount, data=new Uint8Array(buf); canvasCtx.clearRect(0,0,canvas.width,canvas.height); const activeColor=PLAYLIST[currentTrackIndex].color||"#00ff88"; if(vizMode===0){ analyser.getByteFrequencyData(data); const bw=(canvas.width/buf)*2.5; let x=0; for(let i=0;i<buf;i++){ const bh=(data[i]/255)*canvas.height*0.8; const g=canvasCtx.createLinearGradient(0,canvas.height,0,0); g.addColorStop(0,'rgba(9,10,15,0)'); g.addColorStop(0.5,activeColor+'44'); g.addColorStop(1,activeColor); canvasCtx.fillStyle=g; canvasCtx.fillRect(x,canvas.height-bh,bw-2,bh); x+=bw; } } else { analyser.getByteTimeDomainData(data); canvasCtx.lineWidth=2; canvasCtx.strokeStyle=activeColor; canvasCtx.beginPath(); const sw=canvas.width/buf; let x=0; for(let i=0;i<buf;i++){ const v=data[i]/128.0, y=v*canvas.height/2; if(i===0)canvasCtx.moveTo(x,y); else canvasCtx.lineTo(x,y); x+=sw; } canvasCtx.lineTo(canvas.width,canvas.height/2); canvasCtx.stroke(); } }
+        document.getElementById('toggle-viz-mode').addEventListener('click',()=>{ vizMode=vizMode===0?1:0; document.getElementById('viz-mode-name').textContent=vizMode===0?'Bars':'Wave'; });
+        const esc=v=>String(v==null?'':v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+        const fmtDate=d=>{ if(!d) return ''; const x=new Date(d+'T00:00:00'); return isNaN(x)?esc(d):x.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); };
+        const artistsOf=t=>String(t.artist).split(/\s*(?:,|&)\s*/).map(a=>a.trim()).filter(Boolean);
+        function recentOrder(){ return PLAYLIST.map((t,i)=>i).sort((a,b)=>String(PLAYLIST[b].added||'').localeCompare(String(PLAYLIST[a].added||''))||a-b); }
+        function emptyState(icon,title,text){ return `<div class="glass-panel rounded-3xl border border-slate-800/80 p-10 text-center space-y-3"><div class="w-16 h-16 mx-auto rounded-2xl bg-neonGreen/10 border border-neonGreen/30 flex items-center justify-center text-neonGreen text-2xl"><i class="fa-solid ${icon}"></i></div><h4 class="text-white font-bold">${title}</h4><p class="text-sm text-slate-400 max-w-sm mx-auto">${text}</p></div>`; }
+        function trackRow(i,n,showDate){ const t=PLAYLIST[i], cur=i===currentTrackIndex; return `<div onclick="selectTrack(${i})" class="track-row glass-panel flex items-center justify-between p-3.5 rounded-2xl cursor-pointer hover:bg-slate-800/50 transition-all border border-slate-800/60 ${cur?'border-neonGreen/40 bg-slate-800/40':''}"><div class="flex items-center gap-4 min-w-0"><span class="text-xs font-mono font-bold w-5 text-center ${cur?'text-neonGreen':'text-slate-500'}">${String(n+1).padStart(2,'0')}</span><img src="${esc(t.cover)}" alt="" class="w-10 h-10 rounded-xl object-cover shrink-0"><div class="min-w-0"><h4 class="text-sm font-bold truncate ${cur?'text-neonGreen':'text-white'}">${esc(t.title)}</h4><p class="text-xs text-slate-400 truncate">${esc(t.artist)}</p></div></div><div class="flex items-center gap-4 shrink-0">${showDate?`<span class="text-[11px] text-slate-500 hidden sm:inline">${fmtDate(t.added)}</span>`:''}<span class="text-xs font-mono text-slate-500">${esc(t.duration)}</span><button class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-white"><i class="fa-solid ${cur&&isPlaying?'fa-pause text-neonGreen':'fa-play'} text-xs"></i></button></div></div>`; }
+        function renderPlaylist(){
+            const all=PLAYLIST.map((t,i)=>i), rec=recentOrder(), songs=all.filter(i=>PLAYLIST[i].type!=='beat'), beats=all.filter(i=>PLAYLIST[i].type==='beat');
+            const cnt=(n,w)=>n+' '+w+(n===1?'':'s');
+            document.getElementById('recent-container').innerHTML=rec.length?rec.map((i,n)=>trackRow(i,n,true)).join(''):emptyState('fa-clock-rotate-left','Nothing here yet','Newly uploaded music will appear here.');
+            document.getElementById('recent-count').textContent=cnt(rec.length,'Track');
+            document.getElementById('songs-container').innerHTML=songs.length?songs.map((i,n)=>trackRow(i,n,false)).join(''):emptyState('fa-music','No songs yet','New AKT songs will appear here.');
+            document.getElementById('songs-count').textContent=cnt(songs.length,'Song');
+            document.getElementById('beats-container').innerHTML=beats.length?beats.map((i,n)=>trackRow(i,n,false)).join(''):emptyState('fa-drum','Beats coming soon','New AKT beats will be displayed here.');
+            document.getElementById('beats-count').textContent=cnt(beats.length,'Beat');
+            renderDiscover();
+        }
+        function renderDiscover(){
+            const map={}; PLAYLIST.forEach((t,i)=>artistsOf(t).forEach(a=>{ const k=a.toUpperCase(); (map[k]=map[k]||{name:a,tracks:[]}).tracks.push(i); }));
+            const artists=Object.values(map);
+            document.getElementById('artist-grid').innerHTML=artists.map(a=>{ const info=ARTISTS[a.name.toUpperCase()]||{}; const initials=a.name.split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+                const avatar=info.image?`<img src="${esc(info.image)}" alt="${esc(a.name)}" class="w-16 h-16 rounded-full object-cover border border-slate-700 shrink-0">`:`<div class="w-16 h-16 rounded-full bg-gradient-to-br from-neonGreen to-neonCyan flex items-center justify-center text-slate-950 font-extrabold text-lg shrink-0">${esc(initials)}</div>`;
+                const chips=a.tracks.map(i=>`<button onclick="selectTrack(${i})" class="px-2.5 py-1 rounded-full text-[11px] bg-slate-800/70 hover:bg-neonGreen/20 text-slate-300 hover:text-white border border-slate-700/60 transition-colors">${esc(PLAYLIST[i].title)}</button>`).join('');
+                return `<div class="glass-panel rounded-2xl border border-slate-800/60 p-4 flex gap-4">${avatar}<div class="min-w-0 flex-1"><h4 class="text-base font-bold text-white truncate">${esc(a.name)}</h4>${info.tags?`<p class="text-xs text-slate-400">${esc(info.tags)}</p>`:''}<p class="text-[11px] text-slate-500 mt-0.5">${a.tracks.length} ${a.tracks.length===1?'track':'tracks'}</p><div class="mt-3 flex flex-wrap gap-2">${chips}</div></div></div>`; }).join('');
+            document.getElementById('artist-count').textContent=artists.length+(artists.length===1?' Artist':' Artists');
+            document.getElementById('meta-container').innerHTML=PLAYLIST.map((t,i)=>{ const f=[['Type',t.type==='beat'?'Beat':'Song'],['Artists',artistsOf(t).join(', ')],['Duration',t.duration],['Added',fmtDate(t.added)],['Genre',t.genre],['BPM',t.bpm],['Key',t.key],['Year',t.year],['Producer',t.producer]].filter(x=>x[1]);
+                return `<div class="glass-panel rounded-2xl border border-slate-800/60 p-4 flex gap-4"><img src="${esc(t.cover)}" alt="" class="w-24 h-24 rounded-xl object-cover shrink-0 border border-slate-700/50"><div class="min-w-0 flex-1"><h4 class="text-sm font-bold text-white truncate">${esc(t.title)}</h4><div class="mt-2 grid grid-cols-2 gap-x-4 gap-y-2">${f.map(x=>`<div class="min-w-0"><div class="text-[10px] uppercase tracking-wider text-slate-500">${x[0]}</div><div class="text-xs text-slate-200 truncate">${esc(x[1])}</div></div>`).join('')}</div></div></div>`; }).join('');
+            document.getElementById('meta-count').textContent=PLAYLIST.length+(PLAYLIST.length===1?' Track':' Tracks');
+        }
+        const NAV_ACTIVE='nav-link flex items-center gap-4 px-3 py-3 rounded-xl bg-gradient-to-r from-neonGreen/10 to-transparent text-neonGreen font-semibold border-l-2 border-neonGreen', NAV_IDLE='nav-link flex items-center gap-4 px-3 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/30 transition-all';
+        function showView(v){ document.querySelectorAll('[data-view-panel]').forEach(p=>p.classList.toggle('hidden',p.dataset.viewPanel!==v)); document.querySelectorAll('[data-view]').forEach(a=>{ a.className=a.dataset.view===v?NAV_ACTIVE:NAV_IDLE; }); const m=document.querySelector('main'); if(m)m.scrollTop=0; if(v==='recent')setupCanvasSize(); }
+        function loadDurations(){ PLAYLIST.forEach(t=>{ if(t.duration)return; const a=new Audio(); a.preload='metadata'; a.addEventListener('loadedmetadata',()=>{ if(isFinite(a.duration)){ t.duration=formatTime(a.duration); renderPlaylist(); } }); a.src=t.src; }); }
+        function loadTrack(i){ currentTrackIndex=i; const t=PLAYLIST[i]; audioPlayer.src=t.src; mainAlbumArt.src=t.cover; playerThumb.src=t.cover; heroTrackTitle.textContent=t.title; heroTrackArtist.textContent=t.artist; playerTitle.textContent=t.title; playerArtist.textContent=t.artist; document.getElementById('orb-1').style.backgroundColor=t.color; renderPlaylist(); }
+        function togglePlay(){ initAudioContext(); if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume(); if(isPlaying){ audioPlayer.pause(); isPlaying=false; updatePlayIcons(false); heroVinyl.classList.add('paused-spin'); } else { audioPlayer.play().then(()=>{ isPlaying=true; updatePlayIcons(true); heroVinyl.classList.remove('paused-spin'); }); } renderPlaylist(); }
+        function selectTrack(i){ if(currentTrackIndex===i&&isPlaying) togglePlay(); else { loadTrack(i); isPlaying=false; togglePlay(); } }
+        function updatePlayIcons(p){ const ic=p?'fa-pause':'fa-play'; mainPlayBtn.innerHTML=`<i class="fa-solid ${ic} text-base ${p?'':'ml-0.5'}"></i>`; heroPlayBtn.innerHTML=`<i class="fa-solid ${ic} text-xl ${p?'':'ml-1'}"></i>`; heroActionPlay.innerHTML=`<i class="fa-solid ${ic} mr-2"></i> ${p?'Pause Track':'Play Track'}`; }
+        mainPlayBtn.addEventListener('click',togglePlay); heroPlayBtn.addEventListener('click',togglePlay); heroActionPlay.addEventListener('click',togglePlay);
+        prevBtn.addEventListener('click',()=>{ currentTrackIndex=(currentTrackIndex-1+PLAYLIST.length)%PLAYLIST.length; loadTrack(currentTrackIndex); if(isPlaying)audioPlayer.play(); });
+        nextBtn.addEventListener('click',()=>{ currentTrackIndex=(currentTrackIndex+1)%PLAYLIST.length; loadTrack(currentTrackIndex); if(isPlaying)audioPlayer.play(); });
+        audioPlayer.addEventListener('timeupdate',()=>{ if(!isNaN(audioPlayer.duration)){ const progress=(audioPlayer.currentTime/audioPlayer.duration)*100; seekBar.value=progress; currentTimeEl.textContent=formatTime(audioPlayer.currentTime); totalDurationEl.textContent=formatTime(audioPlayer.duration); } });
+        seekBar.addEventListener('input',()=>{ if(!isNaN(audioPlayer.duration)) audioPlayer.currentTime=(seekBar.value/100)*audioPlayer.duration; });
+        volumeSlider.addEventListener('input',e=>{ audioPlayer.volume=e.target.value; updateVolumeIcon(e.target.value); });
+        muteBtn.addEventListener('click',()=>{ if(audioPlayer.volume>0){ audioPlayer.dataset.lastVol=audioPlayer.volume; audioPlayer.volume=0; volumeSlider.value=0; } else { const lv=audioPlayer.dataset.lastVol||0.7; audioPlayer.volume=lv; volumeSlider.value=lv; } updateVolumeIcon(audioPlayer.volume); });
+        function updateVolumeIcon(vol){ if(vol==0) volumeIcon.className='fa-solid fa-volume-xmark text-slate-500'; else if(vol<0.5) volumeIcon.className='fa-solid fa-volume-low text-neonGreen'; else volumeIcon.className='fa-solid fa-volume-high text-neonGreen'; }
+        function formatTime(s){ const m=Math.floor(s/60), sec=Math.floor(s%60); return m+':'+(sec<10?'0':'')+sec; }
+        audioPlayer.addEventListener('ended',()=>nextBtn.click());
+    </script>
+</body>
+</html>

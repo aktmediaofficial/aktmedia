@@ -2,7 +2,7 @@ services:
   - type: web
     name: aktmedia
     env: node
-    buildCommand: corepack enable && pnpm install --frozen-lockfile && cd artifacts/akt-media && pnpm run build
+    buildCommand: npm install -g pnpm && pnpm install --frozen-lockfile && cd artifacts/akt-media && pnpm run build
     startCommand: cd artifacts/akt-media && pnpm run preview -- --host 0.0.0.0 --port $PORT
     envVars:
       - key: NODE_VERSION

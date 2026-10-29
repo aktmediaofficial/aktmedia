@@ -1,5 +1,15 @@
 import express from 'express';
 import { pool } from '@workspace/db';
+import path from 'path';
+
+// Serve static files built from the frontend
+const frontendDist = path.join(__dirname, '../../akt-media/dist');
+app.use(express.static(frontendDist));
+
+// Catch-all route to serve index.html for client-side routing
+app.get('*', (req, res) => {
+  res.sendFile(path.join(frontendDist, 'index.html'));
+});
 
 // Ensure your express app is created
 const app = express();

@@ -1,21 +1,18 @@
 import express from 'express';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import cors from 'cors';
 import { pool } from '@workspace/db';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// 1. Initialize Express app properly first
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
-// 2. Serve your built Vite frontend static files from the monorepo
-const frontendDist = path.join(__dirname, '../../akt-media/dist');
-app.use(express.static(frontendDist));
+// Root health check endpoint so visiting the URL shows status instead of "Cannot GET /"
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', message: 'AKT Media API Server is running successfully' });
+});
 
-// 3. Auto-run database migration table creation
+// Auto-run database migration table creation
 async function runMigration() {
   try {
     if (!pool) return;
@@ -34,19 +31,7 @@ async function runMigration() {
   }
 }
 
-// 4. Catch-all route for frontend client-side routing (Single Page App support)
-app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api')) {
-    return next(); // Let API routes pass through
-  }
-  res.sendFile(path.join(frontendDist, 'index.html'), (err) => {
-    if (err) {
-      res.status(404).send('Frontend build not found or API endpoint missing.');
-    }
-  });
-});
-
-// 5. Start server after database checks complete
+// Start server after database checks complete
 runMigration().then(() => {
   const PORT = process.env.PORT || 3000;
   app.listen(Number(PORT), '0.0.0.0', () => {

@@ -1,5 +1,6 @@
 import express from 'express';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
 import { pool } from '@workspace/db';
@@ -12,16 +13,29 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 1. Serve your built Vite frontend static files
-const frontendDist = path.join(__dirname, '../../akt-media/dist');
-app.use(express.static(frontendDist));
+// Automatically find where the frontend build folder is located
+const possibleFrontendPaths = [
+  path.join(__dirname, '../../akt-media/dist'),
+  path.join(__dirname, '../akt-media/dist'),
+  path.join(process.cwd(), '../akt-media/dist'),
+  path.join(process.cwd(), 'akt-media/dist'),
+];
 
-// 2. API Routes
+const frontendDist = possibleFrontendPaths.find((dir) => fs.existsSync(dir)) || possibleFrontendPaths[0];
+
+console.log(`📂 Serving static frontend from: ${frontendDist}`);
+if (fs.existsSync(frontendDist)) {
+  app.use(express.static(frontendDist));
+} else {
+  console.warn('⚠️ Warning: Frontend dist folder not found on startup.');
+}
+
+// API Health Check Route
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'AKT Media API Server is running successfully' });
 });
 
-// 3. Auto-run database migration table creation
+// Auto-run database migration table creation
 async function runMigration() {
   try {
     if (!pool) return;
@@ -40,16 +54,17 @@ async function runMigration() {
   }
 }
 
-// 4. Express v5 safe catch-all route for frontend Single Page App routing (excludes /api)
+// Catch-all route for frontend Single Page App routing (excludes /api)
 app.get(/^(?!\/api).*/, (req, res) => {
-  res.sendFile(path.join(frontendDist, 'index.html'), (err) => {
-    if (err) {
-      res.status(404).send('Frontend build not found. Please ensure the frontend build step ran successfully.');
-    }
-  });
+  const indexPath = path.join(frontendDist, 'index.html');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(404).send('Frontend build not found. Please ensure the frontend build step ran successfully.');
+  }
 });
 
-// 5. Start server after database checks complete
+// Start server after database checks complete
 runMigration().then(() => {
   const PORT = process.env.PORT || 3000;
   app.listen(Number(PORT), '0.0.0.0', () => {

@@ -1,9 +1,11 @@
 services:
   - type: web
-    name: aktmedia
+    name: aktmedia-api
     env: node
-    buildCommand: npm install -g pnpm && pnpm install --frozen-lockfile && cd artifacts/akt-media && pnpm run build
-    startCommand: cd artifacts/akt-media && pnpm run preview -- --host 0.0.0.0 --port $PORT
+    buildCommand: npm install -g pnpm && pnpm install --frozen-lockfile && cd artifacts/api-server && pnpm run build
+    startCommand: cd artifacts/api-server && pnpm run start
     envVars:
       - key: NODE_VERSION
         value: 20.18.0
+      - key: DATABASE_URL
+        sync: false

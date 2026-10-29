@@ -165,12 +165,9 @@ overrides:
   # orval pins js-yaml to an exact version older than the CVE fix (>=4.3.2)
   js-yaml: '4.3.2'
 
-packages:
-  - 'artifacts/*'
-  - 'lib'
-  - 'scripts'
-
+# Newer pnpm versions use allowBuilds instead of onlyBuiltDependencies
 allowBuilds:
+  '@swc/core': true
   esbuild: true
-  
-
+  msw: true
+  unrs-resolver: true

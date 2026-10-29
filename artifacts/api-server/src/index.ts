@@ -1,29 +1,33 @@
-import fs from 'fs';
-import path from 'path';
+import express from 'express';
 import { pool } from '@workspace/db';
-// ... import your express app or other modules here
 
+// Ensure your express app is created
+const app = express();
+app.use(express.json());
+
+// Auto-run table creation directly via SQL query
 async function runMigration() {
   try {
-    // Locate schema.sql relative to the compiled or source file
-    const schemaPath = path.join(__dirname, 'db', 'schema.sql');
-    
-    if (fs.existsSync(schemaPath)) {
-      const schemaSql = fs.readFileSync(schemaPath, 'utf8');
-      await pool.query(schemaSql);
-      console.log('✅ Database schema applied successfully.');
-    } else {
-      console.warn('⚠️ schema.sql not found at path:', schemaPath);
-    }
+    if (!pool) return;
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS playlists (
+        id SERIAL PRIMARY KEY,
+        session_id VARCHAR(255) NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        tracks JSONB DEFAULT '[]'::jsonb,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Database schema verified/applied successfully.');
   } catch (err) {
     console.error('❌ Failed to apply database schema:', err);
   }
 }
 
-// Run migration, then start the server
+// Run migration and start the server
 runMigration().then(() => {
   const PORT = process.env.PORT || 3000;
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on port ${PORT}`);
+  app.listen(Number(PORT), '0.0.0.0', () => {
+    console.log(`🚀 Server running on port ${PORT}`);
   });
 });

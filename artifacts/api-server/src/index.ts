@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { pool } from './db';
+import { pool } from '@workspace/db';
 // ... import your express app or other modules here
 
 async function runMigration() {

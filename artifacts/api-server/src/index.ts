@@ -1,33 +1,22 @@
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
-import { fileURLToPath } from 'url';
 import cors from 'cors';
 import { pool } from '@workspace/db';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-// Automatically find where the frontend build folder is located
-const possibleFrontendPaths = [
-  path.join(__dirname, '../../akt-media/dist'),
-  path.join(__dirname, '../akt-media/dist'),
-  path.join(process.cwd(), '../akt-media/dist'),
-  path.join(process.cwd(), 'akt-media/dist'),
-];
-
-const frontendDist = possibleFrontendPaths.find((dir) => fs.existsSync(dir)) || possibleFrontendPaths[0];
+// Serve static files from the embedded public folder
+const frontendDist = path.join(__dirname, 'public');
 
 console.log(`📂 Serving static frontend from: ${frontendDist}`);
 if (fs.existsSync(frontendDist)) {
   app.use(express.static(frontendDist));
 } else {
-  console.warn('⚠️ Warning: Frontend dist folder not found on startup.');
+  console.warn('⚠️ Warning: Frontend public folder not found.');
 }
 
 // API Health Check Route
@@ -60,7 +49,7 @@ app.get(/^(?!\/api).*/, (req, res) => {
   if (fs.existsSync(indexPath)) {
     res.sendFile(indexPath);
   } else {
-    res.status(404).send('Frontend build not found. Please ensure the frontend build step ran successfully.');
+    res.status(404).send('Frontend build not found.');
   }
 });
 

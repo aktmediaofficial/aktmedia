@@ -1,21 +1,21 @@
 import express from 'express';
-import { pool } from '@workspace/db';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { pool } from '@workspace/db';
 
-// Serve static files built from the frontend
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// 1. Initialize Express app properly first
+const app = express();
+
+app.use(express.json());
+
+// 2. Serve your built Vite frontend static files from the monorepo
 const frontendDist = path.join(__dirname, '../../akt-media/dist');
 app.use(express.static(frontendDist));
 
-// Catch-all route to serve index.html for client-side routing
-app.get('*', (req, res) => {
-  res.sendFile(path.join(frontendDist, 'index.html'));
-});
-
-// Ensure your express app is created
-const app = express();
-app.use(express.json());
-
-// Auto-run table creation directly via SQL query
+// 3. Auto-run database migration table creation
 async function runMigration() {
   try {
     if (!pool) return;
@@ -34,7 +34,19 @@ async function runMigration() {
   }
 }
 
-// Run migration and start the server
+// 4. Catch-all route for frontend client-side routing (Single Page App support)
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    return next(); // Let API routes pass through
+  }
+  res.sendFile(path.join(frontendDist, 'index.html'), (err) => {
+    if (err) {
+      res.status(404).send('Frontend build not found or API endpoint missing.');
+    }
+  });
+});
+
+// 5. Start server after database checks complete
 runMigration().then(() => {
   const PORT = process.env.PORT || 3000;
   app.listen(Number(PORT), '0.0.0.0', () => {

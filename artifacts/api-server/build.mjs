@@ -3,8 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { build as esbuild } from "esbuild";
 import esbuildPluginPino from "esbuild-plugin-pino";
-import { rm } from "node:fs/promises";
-import { existsSync, cpSync, mkdirSync } from "node:fs";
+import { cp, rm, access } from "node:fs/promises";
 
 // Plugins (e.g. 'esbuild-plugin-pino') may use `require` to resolve dependencies
 globalThis.require = createRequire(import.meta.url);
@@ -23,6 +22,11 @@ async function buildAll() {
     outdir: distDir,
     outExtension: { ".js": ".mjs" },
     logLevel: "info",
+    // Some packages may not be bundleable, so we externalize them, we can add more here as needed.
+    // Some of the packages below may not be imported or installed, but we're adding them in case they are in the future.
+    // Examples of unbundleable packages:
+    // - uses native modules and loads them dynamically (e.g. sharp)
+    // - use path traversal to read files (e.g. @google-cloud/secret-manager loads sibling .proto files)
     external: [
       "*.node",
       "sharp",
@@ -99,8 +103,10 @@ async function buildAll() {
     ],
     sourcemap: "linked",
     plugins: [
+      // pino relies on workers to handle logging, instead of externalizing it we use a plugin to handle it
       esbuildPluginPino({ transports: ["pino-pretty"] })
     ],
+    // Make sure packages that are cjs only (e.g. express) but are bundled continue to work in our esm output file
     banner: {
       js: `import { createRequire as __bannerCrReq } from 'node:module';
 import __bannerPath from 'node:path';
@@ -113,18 +119,23 @@ globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
     },
   });
 
-  // Automatically embed the built frontend into dist/public so the backend serves the full website
-  const frontendDist = path.resolve(artifactDir, "../akt-media/dist");
-  const targetPublic = path.resolve(distDir, "public");
-
-  if (existsSync(frontendDist)) {
-    console.log(`📦 Copying frontend build from ${frontendDist} to ${targetPublic}...`);
-    mkdirSync(targetPublic, { recursive: true });
-    cpSync(frontendDist, targetPublic, { recursive: true });
-    console.log("✅ Frontend successfully embedded into backend dist/public!");
-  } else {
-    console.warn(`⚠️ Warning: Frontend dist not found at ${frontendDist}. Make sure to build akt-media first.`);
+  // Bundle the website into dist/public so one Node service serves site + API.
+  // Vite writes to artifacts/akt-media/dist/public (see its vite.config.ts).
+  const frontendDist = path.resolve(artifactDir, "../akt-media/dist/public");
+  try {
+    await access(path.join(frontendDist, "index.html"));
+  } catch {
+    if (process.env.SKIP_FRONTEND === "1") {
+      console.warn(`Skipping website copy (SKIP_FRONTEND=1): ${frontendDist} not found.`);
+      return;
+    }
+    throw new Error(
+      `Website build not found at ${frontendDist}. ` +
+        "Run `pnpm --filter @workspace/akt-media run build` before building the API server.",
+    );
   }
+  await cp(frontendDist, path.resolve(distDir, "public"), { recursive: true });
+  console.log(`Website copied into ${path.resolve(distDir, "public")}`);
 }
 
 buildAll().catch((err) => {

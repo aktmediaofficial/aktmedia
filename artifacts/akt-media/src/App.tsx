@@ -772,7 +772,6 @@ export default function App() {
                             </a>
                           ))}
                         </div>
-                        <span className="tooltip">Find us online</span>
                       </div>
                     </div>
                     <div>

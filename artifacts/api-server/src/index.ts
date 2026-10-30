@@ -1,62 +1,38 @@
-import express from 'express';
-import path from 'path';
-import fs from 'fs';
-import cors from 'cors';
-import { pool } from '@workspace/db';
+import app from "./app";
+import { logger } from "./lib/logger";
+import { ensurePlaylistSchema } from "./lib/migrate";
 
-const app = express();
+const rawPort = process.env["PORT"];
 
-app.use(cors());
-app.use(express.json());
-
-// Serve static files from the embedded public folder
-const frontendDist = path.join(__dirname, 'public');
-
-console.log(`📂 Serving static frontend from: ${frontendDist}`);
-if (fs.existsSync(frontendDist)) {
-  app.use(express.static(frontendDist));
-} else {
-  console.warn('⚠️ Warning: Frontend public folder not found.');
+if (!rawPort) {
+  throw new Error(
+    "PORT environment variable is required but was not provided.",
+  );
 }
 
-// API Health Check Route
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'AKT Media API Server is running successfully' });
-});
+const port = Number(rawPort);
 
-// Auto-run database migration table creation
-async function runMigration() {
+if (Number.isNaN(port) || port <= 0) {
+  throw new Error(`Invalid PORT value: "${rawPort}"`);
+}
+
+async function main(): Promise<void> {
   try {
-    if (!pool) return;
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS playlists (
-        id SERIAL PRIMARY KEY,
-        session_id VARCHAR(255) NOT NULL,
-        name VARCHAR(255) NOT NULL,
-        tracks JSONB DEFAULT '[]'::jsonb,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-    console.log('✅ Database schema verified/applied successfully.');
+    await ensurePlaylistSchema();
   } catch (err) {
-    console.error('❌ Failed to apply database schema:', err);
+    // Keep the website up even if the database is briefly unreachable;
+    // playlist requests will report errors until it recovers.
+    logger.error({ err }, "Could not prepare playlist tables");
   }
+
+  app.listen(port, "0.0.0.0", (err) => {
+    if (err) {
+      logger.error({ err }, "Error listening on port");
+      process.exit(1);
+    }
+
+    logger.info({ port }, "Server listening");
+  });
 }
 
-// Catch-all route for frontend Single Page App routing (excludes /api)
-app.get(/^(?!\/api).*/, (req, res) => {
-  const indexPath = path.join(frontendDist, 'index.html');
-  if (fs.existsSync(indexPath)) {
-    res.sendFile(indexPath);
-  } else {
-    res.status(404).send('Frontend build not found.');
-  }
-});
-
-// Start server after database checks complete
-runMigration().then(() => {
-  const PORT = process.env.PORT || 3000;
-  app.listen(Number(PORT), '0.0.0.0', () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-  });
-});
+void main();

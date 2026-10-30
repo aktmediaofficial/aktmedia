@@ -50,10 +50,10 @@ function storageClient(): S3Client {
 }
 
 export function mediaObjectKey(track: MediaTrack): string {
-  const prefix = (process.env["S3_KEY_PREFIX"] ?? "").replace(
-    /^\\/+|\\/+$/g,
-    "",
-  );
+  const separator = String.fromCharCode(47);
+  let prefix = process.env["S3_KEY_PREFIX"] ?? "";
+  while (prefix.startsWith(separator)) prefix = prefix.slice(1);
+  while (prefix.endsWith(separator)) prefix = prefix.slice(0, -1);
   return prefix ? `${prefix}/${track.file}` : track.file;
 }
 

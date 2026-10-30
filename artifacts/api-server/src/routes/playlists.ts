@@ -31,7 +31,7 @@ import { playlistSession } from "../middlewares/playlist-session";
 const router: IRouter = Router();
 const MAX_PLAYLISTS_PER_SESSION = 100;
 const MAX_TRACKS_PER_PLAYLIST = 500;
-const AVAILABLE_TRACK_IDS = new Set([1, 2, 3, 4]);
+const AVAILABLE_TRACK_IDS = new Set([1, 2, 3, 4, 5]);
 
 router.use("/playlists", playlistSession);
 

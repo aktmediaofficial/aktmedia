@@ -53,3 +53,8 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Private lossless masters: never commit these to the public repository.
+artifacts/api-server/media/*
+!artifacts/api-server/media/.gitkeep
+!artifacts/api-server/media/README.md

@@ -18,3 +18,17 @@ services:
         sync: false
       - key: SESSION_SECRET # signs the anonymous playlist-session cookie
         generateValue: true
+      - key: S3_BUCKET # private R2/S3 bucket for the lossless WAV masters
+        sync: false
+      - key: S3_ENDPOINT # R2: https://<account-id>.r2.cloudflarestorage.com ; B2: https://s3.<region>.backblazeb2.com
+        sync: false
+      - key: S3_REGION # B2: the region from the endpoint, e.g. us-west-004 ; R2: auto
+        sync: false
+      - key: S3_ACCESS_KEY_ID # B2 Application Key ID
+        sync: false
+      - key: S3_SECRET_ACCESS_KEY # B2 Application Key
+        sync: false
+      - key: S3_FORCE_PATH_STYLE # safe for Backblaze B2
+        value: "true"
+      - key: S3_KEY_PREFIX # optional, e.g. audio
+        value: ""

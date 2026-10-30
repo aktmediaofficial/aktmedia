@@ -17,6 +17,18 @@ const app: Express = express();
 
 // Render (and most hosts) terminate HTTPS at a proxy in front of the app.
 app.set("trust proxy", 1);
+app.disable("x-powered-by");
+
+const allowedOrigins = (process.env["CORS_ORIGINS"] ?? "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use((_req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  next();
+});
 
 app.use(
   pinoHttp({
@@ -37,7 +49,12 @@ app.use(
     },
   }),
 );
-app.use(cors());
+app.use(
+  cors({
+    origin: allowedOrigins.length ? allowedOrigins : false,
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(sessionSecret));
@@ -56,6 +73,23 @@ const frontendDir = process.env["FRONTEND_DIR"]
   ? path.resolve(process.env["FRONTEND_DIR"])
   : path.resolve(__dirname, "public");
 const indexHtml = path.join(frontendDir, "index.html");
+
+// Audio must never be reachable through the static site. It is streamed only
+// by /api/audio/stream after a short-lived, session-bound token is issued.
+const AUDIO_EXTENSION = /\.(?:wav|mp3|m4a|aac|ogg|oga|flac|opus)$/i;
+app.use("/samples", (req, res, next) => {
+  let pathname = req.path;
+  try {
+    pathname = decodeURIComponent(pathname);
+  } catch {
+    // Keep the raw path; express.static will reject malformed paths anyway.
+  }
+  if (AUDIO_EXTENSION.test(pathname)) {
+    res.status(404).type("text/plain").send("Not found.");
+    return;
+  }
+  next();
+});
 
 if (fs.existsSync(indexHtml)) {
   logger.info({ frontendDir }, "Serving website files");

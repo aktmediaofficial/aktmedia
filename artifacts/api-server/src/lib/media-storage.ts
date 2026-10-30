@@ -9,34 +9,40 @@ import type { MediaTrack } from "./media";
 let client: S3Client | undefined;
 
 export function objectStorageEnabled(): boolean {
-  return Boolean(process.env["S3_BUCKET"]);
+  return Boolean(process.env["S3_BUCKET"]?.trim());
+}
+
+function cleanCredential(value: string | undefined, name: string): string {
+  const cleaned = value?.trim();
+  if (!cleaned) {
+    throw new Error(`${name} must be set when S3_BUCKET is configured.`);
+  }
+  if (/[\r\n\0]/.test(cleaned)) {
+    throw new Error(`${name} contains an invalid control character. Check the Render Environment value.`);
+  }
+  return cleaned;
 }
 
 function storageClient(): S3Client {
   if (client) return client;
 
-  const accessKeyId =
-    process.env[
-005632ed43532bc0000000002] ?? process.env[
-005632ed43532bc0000000002];
-  const secretAccessKey =
-    process.env[
-005632ed43532bc0000000002] ??
-    process.env[K005QwGunUAM2p01HlYtNtmSQLusW7g];
-
-  if (!accessKeyId || !secretAccessKey) {
-    throw new Error(
-      "S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY must be set when S3_BUCKET is configured.",
-    );
-  }
+  const accessKeyId = cleanCredential(
+    process.env["S3_ACCESS_KEY_ID"] ?? process.env["AWS_ACCESS_KEY_ID"],
+    "S3_ACCESS_KEY_ID",
+  );
+  const secretAccessKey = cleanCredential(
+    process.env["S3_SECRET_ACCESS_KEY"] ??
+      process.env["AWS_SECRET_ACCESS_KEY"],
+    "S3_SECRET_ACCESS_KEY",
+  );
 
   const config: S3ClientConfig = {
-    region: process.env["S3_REGION"] ?? "auto",
-    forcePathStyle: process.env["S3_FORCE_PATH_STYLE"] === "true",
+    region: process.env["S3_REGION"]?.trim() || "auto",
+    forcePathStyle: process.env["S3_FORCE_PATH_STYLE"]?.trim() === "true",
     credentials: { accessKeyId, secretAccessKey },
   };
 
-  const endpoint = process.env["S3_ENDPOINT"];
+  const endpoint = process.env["S3_ENDPOINT"]?.trim();
   if (endpoint) config.endpoint = endpoint;
 
   client = new S3Client(config);
@@ -45,7 +51,7 @@ function storageClient(): S3Client {
 
 export function mediaObjectKey(track: MediaTrack): string {
   const prefix = (process.env["S3_KEY_PREFIX"] ?? "").replace(
-    /^\/+|\/+$/g,
+    /^\\/+|\\/+$/g,
     "",
   );
   return prefix ? `${prefix}/${track.file}` : track.file;
@@ -55,7 +61,7 @@ export async function getMediaObject(
   track: MediaTrack,
   range: string | undefined,
 ): Promise<GetObjectCommandOutput> {
-  const bucket = process.env["S3_BUCKET"];
+  const bucket = process.env["S3_BUCKET"]?.trim();
   if (!bucket) throw new Error("S3_BUCKET is not configured.");
 
   return storageClient().send(

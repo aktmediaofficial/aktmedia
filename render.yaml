@@ -1,11 +1,20 @@
+# One Render web service that serves BOTH the website and the /api (playlists).
 services:
   - type: web
-    name: aktmedia-api
-    env: node
-    buildCommand: npm install -g pnpm && pnpm install --frozen-lockfile && cd artifacts/api-server && pnpm run build
-    startCommand: cd artifacts/api-server && pnpm run start
+    name: aktmedia
+    runtime: node
+    plan: free
+    # NODE_ENV=development is only for `pnpm install` so dev dependencies (vite, esbuild...)
+    # are installed; the app itself still runs with NODE_ENV=production (see envVars).
+    buildCommand: NODE_ENV=development pnpm install --frozen-lockfile && pnpm --filter @workspace/akt-media run build && pnpm --filter @workspace/api-server run build
+    startCommand: node --enable-source-maps artifacts/api-server/dist/index.mjs
+    healthCheckPath: /api/healthz
     envVars:
       - key: NODE_VERSION
-        value: 20.18.0
-      - key: DATABASE_URL
+        value: 22.12.0
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL # your Render Postgres "Internal Database URL"
         sync: false
+      - key: SESSION_SECRET # signs the anonymous playlist-session cookie
+        generateValue: true

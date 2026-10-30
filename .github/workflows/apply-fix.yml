@@ -1,0 +1,39 @@
+name: Apply AKT fix
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Unpack the fix into the right folders
+        run: |
+          set -e
+          test -f aktmedia-changes-only.zip
+          unzip -o aktmedia-changes-only.zip
+          git rm -q --ignore-unmatch -f aktmedia-changes-only.zip
+          rm -f aktmedia-changes-only.zip
+          # remove the loose files that an earlier upload put in the repo root by mistake
+          for f in "App.tsx" "api (3).ts" "api.schemas.ts" "api.ts" "apiError.ts" "app.ts" \
+                   "badRequestResponse.ts" "build.mjs" "conflictResponse.ts" "healthStatus.ts" \
+                   "index (1).ts" "index (2).ts" "index (5).ts" "index (6).ts" "index.ts" \
+                   "migrate.ts" "notFoundResponse.ts" "openapi.yaml" "playlist-session.ts" \
+                   "playlist.ts" "playlistInput.ts" "playlistTrack.ts" "playlistTrackInput.ts" \
+                   "playlistTrackOrderInput.ts" "playlistUpdate.ts" "playlists (4).ts" \
+                   "playlists.ts" "sample.html" "vite.config.ts"; do
+            git rm -q --ignore-unmatch -f -- "$f"
+          done
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A
+          git commit -m "Apply AKT Render fix (site + playlists)"
+          git push

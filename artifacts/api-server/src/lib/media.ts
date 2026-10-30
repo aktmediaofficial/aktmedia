@@ -12,7 +12,7 @@ export const MEDIA_TRACKS: Record<number, MediaTrack> = {
   1: {
     id: 1,
     title: "Don't Be Dumb",
-    file: "dont be dumb.wav",
+    file: "dont-be-dumb.wav",
     mime: "audio/wav",
   },
   2: {

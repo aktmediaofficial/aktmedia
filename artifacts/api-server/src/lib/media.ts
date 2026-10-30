@@ -12,31 +12,31 @@ export const MEDIA_TRACKS: Record<number, MediaTrack> = {
   1: {
     id: 1,
     title: "Don't Be Dumb",
-    file: "Don't Be Dumb.wav",
+    file: "dont be dumb.wav",
     mime: "audio/wav",
   },
   2: {
     id: 2,
     title: "Ekseni",
-    file: "Ekseni.wav",
+    file: "ekseni.wav",
     mime: "audio/wav",
   },
   3: {
     id: 3,
     title: "Masambe",
-    file: "Masambe.wav",
+    file: "masambe.wav",
     mime: "audio/wav",
   },
   4: {
     id: 4,
     title: "Money Moves",
-    file: "Money Moves.wav",
+    file: "money-moves.wav",
     mime: "audio/wav",
   },
   5: {
     id: 5,
     title: "Drip",
-    file: "Drip.wav",
+    file: "drip.wav",
     mime: "audio/wav",
   },
 };

@@ -16,10 +16,13 @@ function storageClient(): S3Client {
   if (client) return client;
 
   const accessKeyId =
-    process.env["S3_ACCESS_KEY_ID"] ?? process.env["AWS_ACCESS_KEY_ID"];
+    process.env[
+005632ed43532bc0000000002] ?? process.env[
+005632ed43532bc0000000002];
   const secretAccessKey =
-    process.env["S3_SECRET_ACCESS_KEY"] ??
-    process.env["AWS_SECRET_ACCESS_KEY"];
+    process.env[
+005632ed43532bc0000000002] ??
+    process.env[K005QwGunUAM2p01HlYtNtmSQLusW7g];
 
   if (!accessKeyId || !secretAccessKey) {
     throw new Error(

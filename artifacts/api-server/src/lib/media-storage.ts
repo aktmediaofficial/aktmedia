@@ -106,9 +106,16 @@ function keyPrefix(): string {
   return (process.env["S3_KEY_PREFIX"] ?? "").trim().replace(/^\/+|\/+$/g, "");
 }
 
+function joinKey(...parts: string[]): string {
+  return parts.filter(Boolean).join("/");
+}
+
 export function mediaObjectKeys(track: MediaTrack): string[] {
   const prefix = keyPrefix();
-  return track.files.map((file) => (prefix ? `${prefix}/${file}` : file));
+  const inFolder = track.files.map((file) => joinKey(prefix, track.folder, file));
+  // Older layout: files at the bucket root (or directly under S3_KEY_PREFIX).
+  const legacy = track.files.map((file) => joinKey(prefix, file));
+  return [...inFolder, ...legacy];
 }
 
 function isMissingKey(error: unknown): boolean {
@@ -130,6 +137,8 @@ function looseName(key: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]/g, "");
 }
+
+export { looseName };
 
 let listCache: { at: number; keys: string[] } | undefined;
 
@@ -161,6 +170,92 @@ async function listBucketKeys(): Promise<string[]> {
 }
 
 const resolvedKeys = new Map<number, string>();
+
+/** Image/video types the site may load from the bucket (never audio). */
+export const ASSET_CONTENT_TYPES: Record<string, string> = {
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".png": "image/png",
+  ".webp": "image/webp",
+  ".gif": "image/gif",
+  ".svg": "image/svg+xml",
+  ".mp4": "video/mp4",
+  ".webm": "video/webm",
+};
+
+const assetKeys = new Map<string, string>();
+
+function extensionOf(key: string): string {
+  const match = key.match(/\.[a-z0-9]+$/i);
+  return match ? match[0].toLowerCase() : "";
+}
+
+/**
+ * Finds a site asset in the bucket. The exact name is tried first; if it is not
+ * there, a forgiving match inside the same folder is used (capitals, spaces,
+ * hyphens, .jpg vs .jpeg, and a name that is a prefix of the other are ignored).
+ */
+export async function getAssetObject(
+  folder: string,
+  file: string,
+  range: string | undefined,
+): Promise<{ object: GetObjectCommandOutput; key: string }> {
+  const prefix = keyPrefix();
+  const exact = joinKey(prefix, folder, file);
+  const cacheId = `${folder}/${file}`;
+  const tried: string[] = [];
+
+  const remembered = assetKeys.get(cacheId);
+  if (remembered) {
+    try {
+      return { object: await fetchObject(remembered, range), key: remembered };
+    } catch (error) {
+      if (!isMissingKey(error)) throw error;
+      assetKeys.delete(cacheId);
+      tried.push(remembered);
+    }
+  }
+
+  if (!tried.includes(exact)) {
+    try {
+      const object = await fetchObject(exact, range);
+      assetKeys.set(cacheId, exact);
+      return { object, key: exact };
+    } catch (error) {
+      if (!isMissingKey(error)) throw error;
+      tried.push(exact);
+    }
+  }
+
+  const available = await listBucketKeys();
+  const folderPrefix = joinKey(prefix, folder) + "/";
+  const candidates = available.filter(
+    (key) =>
+      key.startsWith(folderPrefix) &&
+      !key.slice(folderPrefix.length).includes("/") &&
+      extensionOf(key) in ASSET_CONTENT_TYPES,
+  );
+  const wanted = looseName(file);
+  let match = candidates.find((key) => looseName(key) === wanted);
+  if (!match) {
+    const partial = candidates.filter((key) => {
+      const name = looseName(key);
+      return name.startsWith(wanted) || wanted.startsWith(name);
+    });
+    if (partial.length === 1) match = partial[0];
+  }
+  if (match) {
+    const object = await fetchObject(match, range);
+    assetKeys.set(cacheId, match);
+    logger.warn(
+      { requested: exact, found: match },
+      "Site asset matched by approximate name; use the exact name in the site code to avoid this lookup",
+    );
+    return { object, key: match };
+  }
+
+  throw new MediaNotFoundError(tried, candidates);
+}
 
 function fetchObject(key: string, range: string | undefined): Promise<GetObjectCommandOutput> {
   const bucket = process.env["S3_BUCKET"]?.trim();
@@ -200,7 +295,10 @@ export async function getMediaObject(
   // Nothing matched exactly: fall back to a forgiving match against the real bucket listing.
   const available = await listBucketKeys();
   const wanted = new Set([...track.files, track.title].map(looseName));
-  const match = available.filter((key) => /\.wav$/i.test(key)).find((key) => wanted.has(looseName(key)));
+  const folderPrefix = joinKey(keyPrefix(), track.folder) + "/";
+  const match = available
+    .filter((key) => key.startsWith(folderPrefix) && /\.wav$/i.test(key))
+    .find((key) => wanted.has(looseName(key)));
   if (match) {
     const object = await fetchObject(match, range);
     resolvedKeys.set(track.id, match);

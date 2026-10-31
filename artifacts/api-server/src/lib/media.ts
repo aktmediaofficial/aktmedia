@@ -5,6 +5,8 @@ import path from "node:path";
 export type MediaTrack = {
   id: number;
   title: string;
+  /** Folder (key prefix) inside the bucket, e.g. "Songs" or "Beats". */
+  folder: string;
   /**
    * File names to look for, best first. The first one is the name to use when
    * uploading; the others are accepted so an older naming scheme keeps working.
@@ -16,32 +18,58 @@ export type MediaTrack = {
 export const MEDIA_TRACKS: Record<number, MediaTrack> = {
   1: {
     id: 1,
+    folder: "Songs",
     title: "Don't Be Dumb",
     files: ["dont-be-dumb.wav", "Don't Be Dumb.wav"],
     mime: "audio/wav",
   },
   2: {
     id: 2,
+    folder: "Songs",
     title: "Ekseni",
     files: ["ekseni.wav", "Ekseni.wav"],
     mime: "audio/wav",
   },
   3: {
     id: 3,
+    folder: "Songs",
     title: "Masambe",
     files: ["masambe.wav", "Masambe.wav"],
     mime: "audio/wav",
   },
   4: {
     id: 4,
+    folder: "Songs",
     title: "Money Moves",
     files: ["money-moves.wav", "Money Moves.wav", "Money Moves (3).wav"],
     mime: "audio/wav",
   },
   5: {
     id: 5,
+    folder: "Songs",
     title: "Drip",
     files: ["drip.wav", "Drip.wav"],
+    mime: "audio/wav",
+  },
+  6: {
+    id: 6,
+    folder: "Beats",
+    title: "Ace",
+    files: ["Ace.wav", "ace.wav"],
+    mime: "audio/wav",
+  },
+  7: {
+    id: 7,
+    folder: "Beats",
+    title: "Authentic",
+    files: ["Authentic.wav", "authentic.wav"],
+    mime: "audio/wav",
+  },
+  8: {
+    id: 8,
+    folder: "Beats",
+    title: "Old School",
+    files: ["Old School.wav", "old-school.wav", "Old_School.wav"],
     mime: "audio/wav",
   },
 };
@@ -58,12 +86,17 @@ export async function resolveLocalMediaFile(
   track: MediaTrack,
 ): Promise<string | undefined> {
   for (const file of track.files) {
-    const candidate = path.join(mediaDirectory(), file);
-    try {
-      await access(candidate);
-      return candidate;
-    } catch {
-      // try the next name
+    // Same layout as the bucket (Songs/..., Beats/...), then the old flat layout.
+    for (const candidate of [
+      path.join(mediaDirectory(), track.folder, file),
+      path.join(mediaDirectory(), file),
+    ]) {
+      try {
+        await access(candidate);
+        return candidate;
+      } catch {
+        // try the next name
+      }
     }
   }
   return undefined;

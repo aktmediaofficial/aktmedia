@@ -29,6 +29,6 @@ services:
       - key: S3_SECRET_ACCESS_KEY # B2 Application Key
         sync: false
       - key: S3_FORCE_PATH_STYLE # safe for Backblaze B2
-        value: "true"
+        value: "false"
       - key: S3_KEY_PREFIX # optional, e.g. audio
         value: ""

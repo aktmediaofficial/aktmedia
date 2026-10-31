@@ -1,10 +1,15 @@
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
+import { access } from "node:fs/promises";
 import path from "node:path";
 
 export type MediaTrack = {
   id: number;
   title: string;
-  file: string;
+  /**
+   * File names to look for, best first. The first one is the name to use when
+   * uploading; the others are accepted so an older naming scheme keeps working.
+   */
+  files: string[];
   mime: string;
 };
 
@@ -12,31 +17,31 @@ export const MEDIA_TRACKS: Record<number, MediaTrack> = {
   1: {
     id: 1,
     title: "Don't Be Dumb",
-    file: "dont-be-dumb.wav",
+    files: ["dont-be-dumb.wav", "Don't Be Dumb.wav"],
     mime: "audio/wav",
   },
   2: {
     id: 2,
     title: "Ekseni",
-    file: "ekseni.wav",
+    files: ["ekseni.wav", "Ekseni.wav"],
     mime: "audio/wav",
   },
   3: {
     id: 3,
     title: "Masambe",
-    file: "masambe.wav",
+    files: ["masambe.wav", "Masambe.wav"],
     mime: "audio/wav",
   },
   4: {
     id: 4,
     title: "Money Moves",
-    file: "money-moves.wav",
+    files: ["money-moves.wav", "Money Moves.wav", "Money Moves (3).wav"],
     mime: "audio/wav",
   },
   5: {
     id: 5,
     title: "Drip",
-    file: "drip.wav",
+    files: ["drip.wav", "Drip.wav"],
     mime: "audio/wav",
   },
 };
@@ -49,8 +54,19 @@ function mediaDirectory(): string {
     : path.resolve(__dirname, "..", "media");
 }
 
-export function mediaFilePath(track: MediaTrack): string {
-  return path.join(mediaDirectory(), track.file);
+export async function resolveLocalMediaFile(
+  track: MediaTrack,
+): Promise<string | undefined> {
+  for (const file of track.files) {
+    const candidate = path.join(mediaDirectory(), file);
+    try {
+      await access(candidate);
+      return candidate;
+    } catch {
+      // try the next name
+    }
+  }
+  return undefined;
 }
 
 function signingSecret(): string {

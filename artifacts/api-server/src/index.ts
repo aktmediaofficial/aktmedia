@@ -1,5 +1,7 @@
 import app from "./app";
 import { logger } from "./lib/logger";
+import { MEDIA_TRACKS } from "./lib/media";
+import { checkMediaStorage } from "./lib/media-storage";
 import { ensurePlaylistSchema } from "./lib/migrate";
 
 const rawPort = process.env["PORT"];
@@ -32,6 +34,11 @@ async function main(): Promise<void> {
     }
 
     logger.info({ port }, "Server listening");
+
+    // Report which songs are in storage and whether browsers can play them.
+    void checkMediaStorage(Object.values(MEDIA_TRACKS)).catch((error: unknown) =>
+      logger.error({ err: error }, "Audio storage check failed"),
+    );
   });
 }
 

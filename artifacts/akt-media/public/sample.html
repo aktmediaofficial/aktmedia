@@ -104,6 +104,9 @@
             #player-controls .player-actions { gap: 8px; }
             .mobile-nav-link { font-size: 8px; }
         }
+    
+        #audio-toast{position:fixed;left:50%;bottom:112px;transform:translate(-50%,12px);max-width:min(92vw,480px);padding:12px 18px;border-radius:14px;background:rgba(18,22,36,.96);border:1px solid rgba(255,65,108,.45);color:#fff;font-size:13px;line-height:1.45;text-align:center;opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease;z-index:9999;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+        #audio-toast.show{opacity:1;transform:translate(-50%,0)}
     </style>
 </head>
 <body class="bg-darkBase text-slate-100 font-sans h-full overflow-hidden select-none">
@@ -417,6 +420,46 @@
             const expiresAt = Date.parse(data.expiresAt) || Date.now() + 60000;
             audioTokenCache.set(track.id, { url: data.url, expiresAt });
             return data.url;
+        }
+        let audioToastTimer = 0;
+        function showAudioToast(message) {
+            let el = document.getElementById('audio-toast');
+            if (!el) { el = document.createElement('div'); el.id = 'audio-toast'; el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite'); document.body.appendChild(el); }
+            el.textContent = message; el.classList.add('show');
+            clearTimeout(audioToastTimer); audioToastTimer = setTimeout(() => el.classList.remove('show'), 7000);
+        }
+        let audioRecoveredSrc = '';
+        let playIntent = false; // the listener pressed play and has not paused since
+        async function handleAudioError() {
+            const src = audioPlayer.getAttribute('src');
+            if (!src) return;
+            const track = PLAYLIST[currentTrackIndex];
+            // Ask the server why the audio failed, so the message (and the fix) can be specific.
+            let status = 0;
+            try {
+                const probe = await fetch(src, { headers: { Range: 'bytes=0-0' }, credentials: 'same-origin', cache: 'no-store' });
+                status = probe.status;
+                if (probe.body) probe.body.cancel().catch(() => {});
+            } catch (_) { status = 0; }
+            if (audioPlayer.getAttribute('src') !== src) return; // the listener already moved on
+
+            if (status === 403 && audioRecoveredSrc !== src) {
+                // The short-lived audio link expired (for example after a long pause): fetch a fresh one and carry on.
+                audioRecoveredSrc = src;
+                const resumeAt = audioPlayer.currentTime || 0, wasPlaying = isPlaying || playIntent;
+                try {
+                    const fresh = await secureAudioUrl(track, true);
+                    audioPlayer.src = fresh; audioPlayer.load();
+                    audioPlayer.addEventListener('loadedmetadata', () => { try { audioPlayer.currentTime = resumeAt; } catch (_) {} if (wasPlaying) audioPlayer.play().catch(() => {}); }, { once: true });
+                    return;
+                } catch (_) { /* fall through to the message below */ }
+            }
+
+            isPlaying = false; playIntent = false; updatePlayIcons(false); heroVinyl.classList.add('paused-spin'); renderPlaylist();
+            if (status === 404) showAudioToast('This track isn\u2019t available right now. Please try another one.');
+            else if (status === 200 || status === 206) showAudioToast('Your browser couldn\u2019t play this track\u2019s audio format.');
+            else showAudioToast('The audio service is busy. Please try again in a moment.');
+            console.error('Audio playback error', { track: track && track.title, httpStatus: status, mediaErrorCode: audioPlayer.error && audioPlayer.error.code });
         }
         document.addEventListener('contextmenu', event => event.preventDefault());
         document.addEventListener('keydown', event => {
@@ -749,14 +792,15 @@
                 if (requestId === audioLoadRequest) {
                     audioPlayer.removeAttribute('src');
                     audioPlayer.load();
-                    console.error('Audio authorization failed.', error);
+                    console.error('Audio authorization failed.', error); showAudioToast('This track couldn\u2019t be loaded right now. Please try again in a moment.');
                 }
                 return false;
             }
         }
         function togglePlay(){
             initAudioContext(); if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();
-            if(isPlaying){ audioPlayer.pause(); isPlaying=false; updatePlayIcons(false); heroVinyl.classList.add('paused-spin'); renderPlaylist(); return; }
+            if(isPlaying){ audioPlayer.pause(); playIntent=false; isPlaying=false; updatePlayIcons(false); heroVinyl.classList.add('paused-spin'); renderPlaylist(); return; }
+            playIntent = true;
             const startPlayback = () => audioPlayer.play().then(()=>{ isPlaying=true; updatePlayIcons(true); heroVinyl.classList.remove('paused-spin'); renderPlaylist(); }).catch(error=>{ isPlaying=false; updatePlayIcons(false); heroVinyl.classList.add('paused-spin'); console.error('Playback could not start.', error); renderPlaylist(); });
             if(!audioPlayer.getAttribute('src')){ loadTrack(currentTrackIndex).then(ok=>{ if(ok) startPlayback(); }); return; }
             startPlayback();
@@ -782,6 +826,7 @@
             const loaded=await loadTrack(currentTrackIndex);
             if(loaded && wasPlaying) togglePlay();
         }
+        audioPlayer.addEventListener('error', handleAudioError);
         prevBtn.addEventListener('click',()=>stepPlayback(-1));
         nextBtn.addEventListener('click',()=>stepPlayback(1));
         audioPlayer.addEventListener('timeupdate',()=>{ if(!isNaN(audioPlayer.duration)){ const progress=(audioPlayer.currentTime/audioPlayer.duration)*100; seekBar.value=progress; currentTimeEl.textContent=formatTime(audioPlayer.currentTime); totalDurationEl.textContent=formatTime(audioPlayer.duration); } });

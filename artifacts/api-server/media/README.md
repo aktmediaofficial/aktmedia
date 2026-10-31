@@ -3,15 +3,26 @@
 This folder is read only by `GET /api/audio/stream/:trackId`. It is **not**
 served by `express.static`, so files here cannot be fetched by guessing a URL.
 
-The lossless playback masters use these exact names:
+The lossless playback masters. The server looks for the **first name** in each
+row, then the others, then any file whose name matches loosely (capitals, spaces,
+hyphens and a trailing "(3)" are ignored). Use the first name when uploading:
 
-| Track | File |
-|---|---|
-| Don't Be Dumb | `Don't Be Dumb.wav` |
-| Ekseni | `Ekseni.wav` |
-| Masambe | `Masambe.wav` |
-| Money Moves | `Money Moves.wav` |
-| Drip | `Drip.wav` |
+| Track | Preferred file name | Also accepted |
+|---|---|---|
+| Don't Be Dumb | `dont-be-dumb.wav` | `Don't Be Dumb.wav` |
+| Ekseni | `ekseni.wav` | `Ekseni.wav` |
+| Masambe | `masambe.wav` | `Masambe.wav` |
+| Money Moves | `money-moves.wav` | `Money Moves.wav`, `Money Moves (3).wav` |
+| Drip | `drip.wav` | `Drip.wav` |
+
+## WAV format (important)
+
+Browsers can only decode **8/16/24/32-bit PCM** and **32-bit float** WAV files.
+**64-bit float WAV (a common DAW export setting) will not play in Chrome, Edge,
+Firefox or Safari.** Export masters as **24-bit PCM WAV**.
+
+On every start the server writes an "Audio file OK / CANNOT be played / NOT FOUND"
+line per track to the log, so a bad file shows up in Render's Logs right away.
 
 ## Local development
 

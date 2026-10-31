@@ -1,14 +1,17 @@
-import { access } from "node:fs/promises";
 import type { Readable } from "node:stream";
 import { Router, type IRouter, type Request, type Response } from "express";
 import { logger } from "../lib/logger";
-import { getMediaObject, objectStorageEnabled } from "../lib/media-storage";
+import {
+  getMediaObject,
+  MediaNotFoundError,
+  objectStorageEnabled,
+} from "../lib/media-storage";
 import { playlistSession } from "../middlewares/playlist-session";
 import {
   isAllowedAudioRequest,
   issueAudioToken,
   MEDIA_TRACKS,
-  mediaFilePath,
+  resolveLocalMediaFile,
   verifyAudioToken,
   type MediaTrack,
 } from "../lib/media";
@@ -132,6 +135,14 @@ router.get("/audio/stream/:trackId", async (req, res): Promise<void> => {
       body.pipe(res);
       return;
     } catch (error) {
+      if (error instanceof MediaNotFoundError) {
+        logger.warn(
+          { trackId, tried: error.tried, inBucket: error.available.slice(0, 50) },
+          "Audio file not found in the bucket",
+        );
+        res.status(404).json({ error: "Audio file is not available." });
+        return;
+      }
       const status = objectStorageStatus(error);
       if (status === 404) {
         res.status(404).json({ error: "Audio file is not available." });
@@ -147,10 +158,9 @@ router.get("/audio/stream/:trackId", async (req, res): Promise<void> => {
     }
   }
 
-  const filePath = mediaFilePath(track);
-  try {
-    await access(filePath);
-  } catch {
+  const filePath = await resolveLocalMediaFile(track);
+  if (!filePath) {
+    logger.warn({ trackId, looked: track.files }, "Audio file not found on disk");
     res.status(404).json({ error: "Audio file is not available." });
     return;
   }

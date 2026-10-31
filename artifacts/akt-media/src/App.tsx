@@ -1,5 +1,6 @@
 import React, { FormEvent, useState, useEffect, useRef } from "react"
 import { motion, MotionConfig } from "framer-motion"
+import { assetUrl, LOGO } from "./lib/assets"
 
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"]
 const DAYS = ["Su","Mo","Tu","We","Th","Fr","Sa"]
@@ -128,8 +129,8 @@ function DateTimePicker({ value, onChange }: { value: string; onChange: (v: stri
 
 
 const studioImages = {
-  hero: "/images/studio.jpg",
-  recording: "/images/recording.jpg",
+  hero: assetUrl("Site Images", "studio.jpg"),
+  recording: assetUrl("Site Images", "Recording.jpeg"),
 }
 
 const packages = [
@@ -137,13 +138,13 @@ const packages = [
     name: "Mixing",
     type: "Balance, clarity & creative polish",
     price: "R200",
-    image: "/images/mixing.jpg",
+    image: assetUrl("Site Images", "Mixing.jpeg"),
   },
   {
     name: "Mastering",
     type: "Release-ready across every platform",
     price: "R200",
-    image: "/images/mastering.jpg",
+    image: assetUrl("Site Images", "Mastering.jpg"),
   },
   {
     name: "Audio Recording",
@@ -155,7 +156,7 @@ const packages = [
     name: "Beat / Instrumental",
     type: "Custom beats & instrumentals",
     price: "R200",
-    image: "/images/beat.jpg",
+    image: assetUrl("Site Images", "Beat.jpeg"),
   },
 ]
 
@@ -163,12 +164,12 @@ const engineers = [
   {
     name: "Atee",
     specialty: "Soul · Hip-hop · Trap",
-    image: "/images/atee.jpg",
+    image: assetUrl("Artist Profiles", "Atee.jpeg"),
   },
   {
     name: "Nazz",
     specialty: "3 Step · Afrohouse · House · Piano",
-    image: "/images/nazz.jpg",
+    image: assetUrl("Artist Profiles", "Nazz.jpeg"),
   },
 ]
 
@@ -283,7 +284,7 @@ export default function App() {
       <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-[#080808]/80 backdrop-blur-xl">
         <div className="page-shell flex h-20 items-center justify-between">
           <a className="brand" href="#top" aria-label="AKT Media Productions home">
-            <img src="/images/akt-logo.png" alt="AKT Media Productions" />
+            <img src={LOGO} alt="AKT Media Productions" />
           </a>
           <nav
             className="hidden items-center gap-8 md:flex"
@@ -778,7 +779,7 @@ export default function App() {
                       <h3 style={{ margin: '0 0 1rem', fontSize: '1.1rem' }}>Sample</h3>
                       <a href="/sample.html" target="_blank" rel="noopener noreferrer" className="sample-link">
                         <span className="sample-link__disc">
-                          <img src="/samples/akt-logo.png" alt="" />
+                          <img src={LOGO} alt="" />
                         </span>
                         <span>Listen to samples</span>
                       </a>
@@ -795,7 +796,7 @@ export default function App() {
         <div className="page-shell">
           <div className="footer-top">
             <a className="brand" href="#top" aria-label="AKT Media Productions home">
-              <img src="/images/akt-logo.png" alt="AKT Media Productions" />
+              <img src={LOGO} alt="AKT Media Productions" />
             </a>
             <p>Make it loud. Make it honest. Make it here.</p>
           </div>

@@ -105,6 +105,23 @@
             .mobile-nav-link { font-size: 8px; }
         }
     
+        .type-seg{position:relative;display:inline-grid;grid-template-columns:repeat(3,1fr);padding:4px;border-radius:9999px;background:rgba(15,20,32,.75);border:1px solid rgba(255,255,255,.1);--i:0}
+        .type-seg-thumb{position:absolute;top:4px;bottom:4px;left:4px;width:calc((100% - 8px)/3);border-radius:9999px;background:linear-gradient(90deg,#ff416c,#e91e63);box-shadow:0 0 18px rgba(255,65,108,.45);transform:translateX(calc(var(--i)*100%));transition:transform .38s cubic-bezier(.34,1.3,.64,1)}
+        .type-seg button{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:88px;padding:7px 16px;border-radius:9999px;font-size:11px;font-weight:800;letter-spacing:.04em;color:#94a3b8;transition:color .25s}
+        .type-seg button:hover{color:#fff}
+        .type-seg button[aria-pressed="true"]{color:#090a0f}
+        .type-seg button em{font-style:normal;font-size:10px;opacity:.7}
+        .type-chip{display:inline-block;margin-left:8px;padding:1px 6px;border-radius:6px;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;vertical-align:middle;border:1px solid}
+        .type-chip--beat{color:#ff8fa8;border-color:rgba(255,65,108,.4);background:rgba(255,65,108,.08)}
+        .type-chip--song{color:#94a3b8;border-color:rgba(148,163,184,.3)}
+        @media (max-width:640px){.type-seg button{min-width:0;padding:7px 12px}}
+        .cover-toggle{display:inline-flex;gap:2px;padding:3px;border-radius:9999px;background:rgba(15,20,32,.75);border:1px solid rgba(255,255,255,.1)}
+        .cover-toggle button{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:9999px;font-size:11px;font-weight:700;color:#94a3b8;transition:background .2s,color .2s}
+        .cover-toggle button:hover{color:#fff}
+        .cover-toggle button[aria-pressed="true"]{background:linear-gradient(90deg,#ff416c,#e91e63);color:#090a0f}
+        .beat-status{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:9999px;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;border:1px solid;white-space:nowrap}
+        .beat-status--available{color:#34d399;background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.35)}
+        .beat-status--sold{color:#94a3b8;background:rgba(148,163,184,.1);border-color:rgba(148,163,184,.3)}
         #audio-toast{position:fixed;left:50%;bottom:112px;transform:translate(-50%,12px);max-width:min(92vw,480px);padding:12px 18px;border-radius:14px;background:rgba(18,22,36,.96);border:1px solid rgba(255,65,108,.45);color:#fff;font-size:13px;line-height:1.45;text-align:center;opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease;z-index:9999;box-shadow:0 12px 40px rgba(0,0,0,.5)}
         #audio-toast.show{opacity:1;transform:translate(-50%,0)}
     </style>
@@ -125,7 +142,7 @@
             <div class="relative mb-10 flex items-center justify-center">
                 <div class="absolute w-40 h-40 rounded-full border border-neonGreen/20 animate-ping opacity-40"></div>
                 <div class="absolute w-56 h-56 rounded-full border border-neonCyan/15 animate-pulse"></div>
-                <div class="relative w-28 h-28 rounded-full bg-slate-900/70 border border-slate-800/80 shadow-2xl flex items-center justify-center shadow-[0_0_40px_rgba(255,65,108,0.15)]"><div class="absolute inset-0 rounded-full border border-white/5"></div><img src="/samples/akt-logo.png" alt="AKT Media Productions" class="w-16 h-16 object-contain drop-shadow-[0_0_30px_rgba(255,65,108,0.4)] animate-pulse"></div><div class="absolute -bottom-2 flex items-end justify-center gap-1 h-6 px-3 py-0.5 rounded-full bg-slate-950/80 border border-slate-800/70">
+                <div class="relative w-28 h-28 rounded-full bg-slate-900/70 border border-slate-800/80 shadow-2xl flex items-center justify-center shadow-[0_0_40px_rgba(255,65,108,0.15)]"><div class="absolute inset-0 rounded-full border border-white/5"></div><img src="/api/assets/Site%20Images/akt-logo.png" alt="AKT Media Productions" class="w-16 h-16 object-contain drop-shadow-[0_0_30px_rgba(255,65,108,0.4)] animate-pulse"></div><div class="absolute -bottom-2 flex items-end justify-center gap-1 h-6 px-3 py-0.5 rounded-full bg-slate-950/80 border border-slate-800/70">
                     <div class="loader-bar w-1 bg-neonGreen rounded-full"></div>
                     <div class="loader-bar w-1 bg-neonCyan rounded-full"></div>
                     <div class="loader-bar w-1 bg-neonGreen rounded-full"></div>
@@ -133,7 +150,7 @@
                     <div class="loader-bar w-1 bg-neonCyan rounded-full"></div>
                 </div>
             </div>
-            <div id="loader-title" class="flex items-center justify-center gap-3 mb-2 w-full whitespace-nowrap"><img src="/samples/akt-logo.png" alt="AKT Media Productions" class="h-10 w-auto object-contain shrink-0"><span class="[font-size:clamp(0.85rem,4.4vw,1.45rem)] font-extrabold tracking-wider whitespace-nowrap text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-300">AKT MEDIA PRODUCTIONS</span></div>
+            <div id="loader-title" class="flex items-center justify-center gap-3 mb-2 w-full whitespace-nowrap"><img src="/api/assets/Site%20Images/akt-logo.png" alt="AKT Media Productions" class="h-10 w-auto object-contain shrink-0"><span class="[font-size:clamp(0.85rem,4.4vw,1.45rem)] font-extrabold tracking-wider whitespace-nowrap text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-300">AKT MEDIA PRODUCTIONS</span></div>
             <p id="loader-status" class="text-xs uppercase tracking-widest text-slate-400 font-semibold mb-8">Synthesizing Audio Context...</p>
             <div class="w-full bg-slate-800/60 rounded-full h-2.5 mb-4 p-0.5 overflow-hidden border border-slate-700/50 shadow-inner">
                 <div id="loader-progress-bar" class="bg-gradient-to-r from-neonGreen to-neonCyan h-full rounded-full w-0 transition-all duration-300 shadow-[0_0_12px_rgba(0,255,136,0.8)]"></div>
@@ -148,7 +165,7 @@
     <div id="app-container" class="relative z-10 flex flex-col h-screen opacity-0 transition-opacity duration-1000">
         <header id="app-header" class="glass-nav h-16 px-6 flex items-center justify-between shrink-0">
             <div class="flex items-center gap-3">
-                <img src="/samples/akt-logo.png" alt="AKT Media Productions" class="h-9 w-auto object-contain"><span class="font-bold text-lg tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400 hidden sm:inline">AKT MEDIA PRODUCTIONS</span>
+                <img src="/api/assets/Site%20Images/akt-logo.png" alt="AKT Media Productions" class="h-9 w-auto object-contain"><span class="font-bold text-lg tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400 hidden sm:inline">AKT MEDIA PRODUCTIONS</span>
             </div>
             <div class="flex items-center gap-4">
                 <a href="/" class="text-xs text-slate-400 hover:text-neonGreen transition-colors">← Back to Main Site</a>
@@ -197,9 +214,15 @@
                 <div data-view-panel="recent" class="space-y-8">
                     <section class="relative rounded-3xl overflow-hidden glass-panel border border-slate-800/80 p-6 md:p-8 flex flex-col md:flex-row gap-8 items-center">
                     <canvas id="canvas-visualizer" class="absolute inset-0 w-full h-full pointer-events-none opacity-40 z-0"></canvas>
-                    <div class="relative z-10 group shrink-0">
+                    <div class="relative z-10 shrink-0 flex flex-col items-center gap-4"><div class="relative group">
                         <div id="main-album-wrapper" class="relative w-48 h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.8)] border border-slate-700/50">
-                            <img id="main-album-art" src="/samples/covers/dont-be-dumb.png" alt="Current Album Art" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                            <img id="main-album-art" src="/api/assets/Song%20Covers/dont-be-dumb.png" alt="Current Album Art" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                            <video id="main-album-video" class="absolute inset-0 w-full h-full object-cover" style="display:none" muted loop playsinline preload="metadata" disablepictureinpicture></video>
+                            <div id="main-album-unavailable" class="absolute inset-0 flex-col items-center justify-center gap-2 text-center p-4 bg-slate-950/85 backdrop-blur-sm" style="display:none" role="status">
+                                <i class="fa-solid fa-ban text-2xl text-slate-500"></i>
+                                <p class="text-xs font-bold text-white">Animation unavailable</p>
+                                <p class="text-[10px] text-slate-400 leading-snug">An animated cover hasn't been made for this track yet.</p>
+                            </div>
                             <div class="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                 <button id="hero-play-btn" class="w-14 h-14 rounded-full bg-neonGreen text-slate-950 flex items-center justify-center shadow-lg hover:scale-110 transition-transform"><i class="fa-solid fa-play text-xl ml-1"></i></button>
                             </div>
@@ -210,10 +233,18 @@
                             <div class="absolute inset-10 rounded-full border border-slate-800/60"></div>
                             <div class="w-12 h-12 rounded-full bg-neonGreen/80 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border-2 border-slate-900"></div>
                         </div>
+                        </div>
+                        <div id="cover-mode-toggle" class="cover-toggle" role="group" aria-label="Artwork view">
+                            <button type="button" data-cover-mode="cover" aria-pressed="true"><i class="fa-regular fa-image"></i> Cover</button>
+                            <button type="button" data-cover-mode="animated" aria-pressed="false"><i class="fa-solid fa-film"></i> Animated</button>
+                        </div>
                     </div>
                     <div class="relative z-10 flex-1 text-center md:text-left space-y-3">
-                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neonGreen/10 border border-neonGreen/30 text-neonGreen text-xs font-semibold">
-                            <i class="fa-solid fa-bolt"></i> NOW FEATURED
+                        <div class="flex flex-wrap items-center justify-center md:justify-start gap-2">
+                            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neonGreen/10 border border-neonGreen/30 text-neonGreen text-xs font-semibold">
+                                <i class="fa-solid fa-bolt"></i> NOW FEATURED
+                            </div>
+                            <span id="hero-status-badge"></span>
                         </div>
                         <h2 id="hero-track-title" class="text-2xl md:text-4xl font-extrabold tracking-tight text-white">AKT Media Productions</h2>
                         <p id="hero-track-artist" class="text-slate-400 font-medium text-sm md:text-base">Sample Player</p>
@@ -229,11 +260,13 @@
                         <h3 class="text-lg font-bold text-white tracking-wide">Recently Added</h3>
                         <span id="recent-count" class="text-xs text-slate-400"></span>
                     </div>
+                    <div data-type-filter></div>
                     <div class="grid grid-cols-1 gap-2" id="recent-container"></div>
                     </section>
                 </div>
 
                 <div data-view-panel="discover" class="hidden space-y-8">
+                    <div data-type-filter></div>
                     <section class="space-y-4">
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-bold text-white tracking-wide">Artist Profiles</h3>
@@ -322,7 +355,7 @@
 
         <footer id="player-footer" class="glass-nav h-24 px-4 md:px-8 flex items-center justify-between shrink-0 z-20 border-t border-slate-800/80">
             <div id="player-track-info" class="flex items-center gap-4 w-1/4 min-w-[180px]">
-                <img id="player-thumb" src="/samples/covers/dont-be-dumb.png" class="w-14 h-14 rounded-xl object-cover border border-slate-800 shadow-md shrink-0" alt="Current Track">
+                <img id="player-thumb" src="/api/assets/Song%20Covers/dont-be-dumb.png" class="w-14 h-14 rounded-xl object-cover border border-slate-800 shadow-md shrink-0" alt="Current Track">
                 <div class="overflow-hidden">
                     <h4 id="player-title" class="text-sm font-bold text-white truncate">AKT Media Productions</h4>
                     <p id="player-artist" class="text-xs text-slate-400 truncate">Sample Player</p>
@@ -368,22 +401,28 @@
         //    optional extras shown in Discover > Song Details:
         //           genre, bpm, key, year, producer
         // ==========================================================================
+        const ASSET = (folder, file) => '/api/assets/' + encodeURIComponent(folder) + '/' + encodeURIComponent(file);
         const PLAYLIST = [
-            { id: 1, type: "song", title: "Don't Be Dumb", artist: "ATEE", added: "2026-10-27", duration: "2:18", cover: "/samples/covers/dont-be-dumb.png", color: "#ffffff", genre: "Hip Hop", year: "2026", album: "Don't Be Dumb (Single)", composer: "Attila Kelechi Tweni", copyright: "(c) 2026 AKT Media" },
-            { id: 2, type: "song", title: "Ekseni", artist: "ATEE & BHUDDA V DIME", added: "2026-10-27", duration: "2:53", cover: "/samples/covers/ekseni.png", color: "#ffffff", year: "2026" },
-            { id: 3, type: "song", title: "Masambe", artist: "ATEE", added: "2026-10-27", duration: "2:46", cover: "/samples/covers/masambe.png", color: "#ffffff", genre: "Hip Hop", year: "2026", album: "Masambe (Single)", composer: "BeatsByNyce", copyright: "(c) 2026 AKT Media" },
-            { id: 4, type: "song", title: "Money Moves", artist: "NAZZ, ATEE, MAGESH", added: "2026-10-27", duration: "2:49", cover: "/samples/covers/money-moves.png", color: "#ffffff", genre: "Lo-Fi", year: "2026", album: "Money Moves (Single)", composer: "NAZZ, ATEE" },
-            { id: 5, type: "song", title: "Drip", artist: "ATEE, YMK, NYUSTAR, TRAE", added: "2026-10-30", duration: "2:46", cover: "/samples/covers/drip.jpg", color: "#ffffff", genre: "Hip Hop", year: "2026", album: "Drip (Single)", composer: "Attila Kelechi Tweni", copyright: "(c) 2026 AKT Media Productions" }
+            { id: 1, type: "song", title: "Don't Be Dumb", artist: "ATEE", added: "2026-10-27", duration: "2:18", cover: ASSET("Song Covers", "dont-be-dumb.png"), color: "#ffffff", genre: "Hip Hop", year: "2026", album: "Don't Be Dumb (Single)", composer: "Attila Kelechi Tweni", copyright: "(c) 2026 AKT Media" },
+            { id: 2, type: "song", title: "Ekseni", artist: "ATEE & BHUDDA V DIME", added: "2026-10-27", duration: "2:53", cover: ASSET("Song Covers", "ekseni.png"), color: "#ffffff", year: "2026" },
+            { id: 3, type: "song", title: "Masambe", artist: "ATEE", added: "2026-10-27", duration: "2:46", cover: ASSET("Song Covers", "masambe.png"), color: "#ffffff", genre: "Hip Hop", year: "2026", album: "Masambe (Single)", composer: "BeatsByNyce", copyright: "(c) 2026 AKT Media" },
+            { id: 4, type: "song", title: "Money Moves", artist: "NAZZ, ATEE, MAGESH", added: "2026-10-27", duration: "2:49", cover: ASSET("Song Covers", "money-moves.png"), color: "#ffffff", genre: "Lo-Fi", year: "2026", album: "Money Moves (Single)", composer: "NAZZ, ATEE" },
+            { id: 5, type: "song", title: "Drip", artist: "ATEE, YMK, NYUSTAR, TRAE", added: "2026-10-30", duration: "2:46", cover: ASSET("Song Covers", "drip.jpg"), color: "#ffffff", genre: "Hip Hop", year: "2026", album: "Drip (Single)", composer: "Attila Kelechi Tweni", copyright: "(c) 2026 AKT Media Productions" }
+            // BEATS - status is "available" or "sold". Change it to "sold" when a beat is taken.
+            // animation = looping video for the Animated view (optional; songs have none yet).
+            ,{ id: 6, type: "beat", title: "Ace", artist: "ATEE", added: "2026-10-31", duration: "—", cover: ASSET("Beat Covers", "Ace.jpeg"), animation: ASSET("Beat Animations", "Ace.mp4"), bpm: "115", key: "G# Minor", status: "available", color: "#ffffff", year: "2026" },
+            { id: 7, type: "beat", title: "Authentic", artist: "ATEE", added: "2026-10-31", duration: "—", cover: ASSET("Beat Covers", "Authentic.jpeg"), animation: ASSET("Beat Animations", "Authentic.mp4"), bpm: "140", key: "F# Major", status: "available", color: "#ffffff", year: "2026" },
+            { id: 8, type: "beat", title: "Old School", artist: "ATEE", added: "2026-10-31", duration: "—", cover: ASSET("Beat Covers", "Old School.jpeg"), animation: ASSET("Beat Animations", "Old School.mp4"), bpm: "92", key: "C# Minor", status: "available", color: "#ffffff", year: "2026" }
         ];
         // Artist profiles (Discover). Key = artist name in CAPS. image/tags are optional.
         const ARTISTS = {
-            "ATEE": { image: "/images/atee.jpg", tags: "Soul · Hip-hop · Trap" },
-            "NAZZ": { image: "/images/nazz.jpg", tags: "3 Step · Afrohouse · House · Piano" },
-            "BHUDDA V DIME": { image: "/images/dime.jpg", tags: "" },
-            "MAGESH": { image: "/images/magesh.jpg", tags: "" },
-            "YMK": { name: "YMK RSA", image: "/images/ymk-rsa.jpg", tags: "" },
-            "NYUSTAR": { image: "/images/nyustar.jpg", tags: "" },
-            "TRAE": { image: "/images/trae.jpg", tags: "" }
+            "ATEE": { image: ASSET("Artist Profiles", "Atee.jpeg"), tags: "Soul · Hip-hop · Trap" },
+            "NAZZ": { image: ASSET("Artist Profiles", "Nazz.jpeg"), tags: "3 Step · Afrohouse · House · Piano" },
+            "BHUDDA V DIME": { image: ASSET("Artist Profiles", "Dime.jpeg"), tags: "" },
+            "MAGESH": { image: ASSET("Artist Profiles", "Magesh.jpeg"), tags: "" },
+            "YMK": { name: "YMK RSA", image: ASSET("Artist Profiles", "YMK RSA.jpeg"), tags: "" },
+            "NYUSTAR": { image: ASSET("Artist Profiles", "Nyustar.jpeg"), tags: "" },
+            "TRAE": { image: ASSET("Artist Profiles", "Trae.jpeg"), tags: "" }
         };
         const FAVORITES_STORAGE_KEY = "akt-media-favorite-track-ids";
         function readFavoriteTrackIds(){
@@ -490,23 +529,46 @@
         const artistsOf=t=>String(t.artist).split(/\s*(?:,|&)\s*/).map(a=>a.trim()).filter(Boolean);
         function recentOrder(){ return PLAYLIST.map((t,i)=>i).sort((a,b)=>String(PLAYLIST[b].added||'').localeCompare(String(PLAYLIST[a].added||''))||a-b); }
         function emptyState(icon,title,text){ return `<div class="glass-panel rounded-3xl border border-slate-800/80 p-10 text-center space-y-3"><div class="w-16 h-16 mx-auto rounded-2xl bg-neonGreen/10 border border-neonGreen/30 flex items-center justify-center text-neonGreen text-2xl"><i class="fa-solid ${icon}"></i></div><h4 class="text-white font-bold">${title}</h4><p class="text-sm text-slate-400 max-w-sm mx-auto">${text}</p></div>`; }
+        let typeFilter='all';
+        const matchesFilter=t=>typeFilter==='all'||(typeFilter==='beat'?t.type==='beat':t.type!=='beat');
+        const TYPE_OPTIONS=[['all','All'],['song','Songs'],['beat','Beats']];
+        function renderTypeFilters(){
+            const counts={all:PLAYLIST.length,song:PLAYLIST.filter(t=>t.type!=='beat').length,beat:PLAYLIST.filter(t=>t.type==='beat').length};
+            const idx=TYPE_OPTIONS.findIndex(o=>o[0]===typeFilter);
+            document.querySelectorAll('[data-type-filter]').forEach(host=>{
+                const seg=host.firstElementChild;
+                if(seg){ seg.style.setProperty('--i',idx); seg.querySelectorAll('button').forEach((b,n)=>b.setAttribute('aria-pressed',String(n===idx))); return; }
+                host.innerHTML=`<div class="type-seg" role="group" aria-label="Filter by songs or beats" style="--i:${idx}"><span class="type-seg-thumb" aria-hidden="true"></span>${TYPE_OPTIONS.map(([v,l],n)=>`<button type="button" data-type-value="${v}" aria-pressed="${n===idx}">${l} <em>${counts[v]}</em></button>`).join('')}</div>`;
+                host.querySelectorAll('[data-type-value]').forEach(b=>b.addEventListener('click',()=>setTypeFilter(b.dataset.typeValue)));
+            });
+        }
+        function setTypeFilter(value){
+            if(value===typeFilter)return;
+            typeFilter=value; renderPlaylist();
+            if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+                ['recent-container','meta-container','artist-grid'].forEach(id=>{ const el=document.getElementById(id); if(el&&el.animate)el.animate([{opacity:0,transform:'translateY(10px)'},{opacity:1,transform:'none'}],{duration:340,easing:'ease-out'}); });
+            }
+        }
+        const isSold=t=>String(t.status||'available').toLowerCase()==='sold';
+        function statusBadge(t,extra=''){ if(t.type!=='beat')return ''; const sold=isSold(t); return `<span class="beat-status ${sold?'beat-status--sold':'beat-status--available'} ${extra}"><i class="fa-solid ${sold?'fa-lock':'fa-circle-check'}"></i>${sold?'Sold':'Available'}</span>`; }
         function trackRow(i,n,showDate,allowPlaylistAdd=false){
             const t=PLAYLIST[i], cur=i===currentTrackIndex, saved=favoriteTrackIds.has(t.id);
             const favoriteLabel=saved?`Remove ${t.title} from Favourites`:`Add ${t.title} to Favourites`;
             return `<div onclick="selectTrack(${i})" class="track-row glass-panel flex items-center justify-between p-3.5 rounded-2xl cursor-pointer hover:bg-slate-800/50 transition-all border border-slate-800/60 ${cur?'border-neonGreen/40 bg-slate-800/40':''}">
-                <div class="flex items-center gap-4 min-w-0"><span class="text-xs font-mono font-bold w-5 text-center ${cur?'text-neonGreen':'text-slate-500'}">${String(n+1).padStart(2,'0')}</span><img src="${esc(t.cover)}" alt="" class="w-10 h-10 rounded-xl object-cover shrink-0"><div class="min-w-0"><h4 class="text-sm font-bold truncate ${cur?'text-neonGreen':'text-white'}">${esc(t.title)}</h4><p class="text-xs text-slate-400 truncate">${esc(t.artist)}</p></div></div>
+                <div class="flex items-center gap-4 min-w-0"><span class="text-xs font-mono font-bold w-5 text-center ${cur?'text-neonGreen':'text-slate-500'}">${String(n+1).padStart(2,'0')}</span><img src="${esc(t.cover)}" alt="" class="w-10 h-10 rounded-xl object-cover shrink-0"><div class="min-w-0"><h4 class="text-sm font-bold truncate ${cur?'text-neonGreen':'text-white'}">${esc(t.title)}<span class="type-chip ${t.type==='beat'?'type-chip--beat':'type-chip--song'}">${t.type==='beat'?'Beat':'Song'}</span></h4><p class="text-xs text-slate-400 truncate">${esc(t.artist)}</p>${statusBadge(t,'mt-1')}</div></div>
                 <div class="flex items-center gap-2 sm:gap-4 shrink-0">${showDate?`<span class="text-[11px] text-slate-500 hidden sm:inline">${fmtDate(t.added)}</span>`:''}<span class="text-xs font-mono text-slate-500">${esc(t.duration)}</span>${allowPlaylistAdd?`<button type="button" data-add-library-track="${t.id}" aria-label="Add ${esc(t.title)} to a playlist" title="Add to playlist" class="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-neonGreen"><i class="fa-solid fa-list-ul text-xs"></i></button>`:''}<button type="button" data-favorite-id="${t.id}" aria-label="${esc(favoriteLabel)}" aria-pressed="${saved}" class="favorite-track-btn w-8 h-8 rounded-full flex items-center justify-center ${saved?'text-neonGreen':'text-slate-500'} hover:text-neonGreen"><i class="fa-solid fa-heart text-xs"></i></button><button type="button" aria-label="Play ${esc(t.title)}" class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-white"><i class="fa-solid ${cur&&isPlaying?'fa-pause text-neonGreen':'fa-play'} text-xs"></i></button></div>
             </div>`;
         }
         function renderPlaylist(){
-            const all=PLAYLIST.map((t,i)=>i), rec=recentOrder(), songs=all.filter(i=>PLAYLIST[i].type!=='beat'), beats=all.filter(i=>PLAYLIST[i].type==='beat');
+            const all=PLAYLIST.map((t,i)=>i), rec=recentOrder().filter(i=>matchesFilter(PLAYLIST[i])), songs=all.filter(i=>PLAYLIST[i].type!=='beat'), beats=all.filter(i=>PLAYLIST[i].type==='beat');
             const cnt=(n,w)=>n+' '+w+(n===1?'':'s');
-            document.getElementById('recent-container').innerHTML=rec.length?rec.map((i,n)=>trackRow(i,n,true)).join(''):emptyState('fa-clock-rotate-left','Nothing here yet','Newly uploaded music will appear here.');
+            document.getElementById('recent-container').innerHTML=rec.length?rec.map((i,n)=>trackRow(i,n,true)).join(''):emptyState('fa-clock-rotate-left','Nothing here yet',typeFilter==='beat'?'No beats yet.':typeFilter==='song'?'No songs yet.':'Newly uploaded music will appear here.');
             document.getElementById('recent-count').textContent=cnt(rec.length,'Track');
             document.getElementById('songs-container').innerHTML=songs.length?songs.map((i,n)=>trackRow(i,n,false,true)).join(''):emptyState('fa-music','No songs yet','New AKT songs will appear here.');
             document.getElementById('songs-count').textContent=cnt(songs.length,'Song');
             document.getElementById('beats-container').innerHTML=beats.length?beats.map((i,n)=>trackRow(i,n,false)).join(''):emptyState('fa-drum','Beats coming soon','New AKT beats will be displayed here.');
             document.getElementById('beats-count').textContent=cnt(beats.length,'Beat');
+            renderTypeFilters();
             renderDiscover();
             renderFavorites();
             bindFavoriteButtons();
@@ -551,16 +613,16 @@
             footerFavoriteBtn.innerHTML=`<i class="fa-${saved?'solid':'regular'} fa-heart"></i>`;
         }
         function renderDiscover(){
-            const map={}; PLAYLIST.forEach((t,i)=>artistsOf(t).forEach(a=>{ const k=a.toUpperCase(); (map[k]=map[k]||{name:a,tracks:[]}).tracks.push(i); }));
+            const map={}; PLAYLIST.forEach((t,i)=>matchesFilter(t)&&artistsOf(t).forEach(a=>{ const k=a.toUpperCase(); (map[k]=map[k]||{name:a,tracks:[]}).tracks.push(i); }));
             const artists=Object.values(map);
             document.getElementById('artist-grid').innerHTML=artists.map(a=>{ const info=ARTISTS[a.name.toUpperCase()]||{}; const profileName=info.name||a.name; const initials=profileName.split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
                 const avatar=info.image?`<img src="${esc(info.image)}" alt="${esc(profileName)}" class="w-16 h-16 rounded-full object-cover border border-slate-700 shrink-0">`:`<div class="w-16 h-16 rounded-full bg-gradient-to-br from-neonGreen to-neonCyan flex items-center justify-center text-slate-950 font-extrabold text-lg shrink-0">${esc(initials)}</div>`;
                 const chips=a.tracks.map(i=>`<button onclick="selectTrack(${i})" class="px-2.5 py-1 rounded-full text-[11px] bg-slate-800/70 hover:bg-neonGreen/20 text-slate-300 hover:text-white border border-slate-700/60 transition-colors">${esc(PLAYLIST[i].title)}</button>`).join('');
                 return `<div class="glass-panel rounded-2xl border border-slate-800/60 p-4 flex gap-4">${avatar}<div class="min-w-0 flex-1"><h4 class="text-base font-bold text-white truncate">${esc(profileName)}</h4>${info.tags?`<p class="text-xs text-slate-400">${esc(info.tags)}</p>`:''}<p class="text-[11px] text-slate-500 mt-0.5">${a.tracks.length} ${a.tracks.length===1?'track':'tracks'}</p><div class="mt-3 flex flex-wrap gap-2">${chips}</div></div></div>`; }).join('');
             document.getElementById('artist-count').textContent=artists.length+(artists.length===1?' Artist':' Artists');
-            document.getElementById('meta-container').innerHTML=PLAYLIST.map((t,i)=>{ const f=[['Type',t.type==='beat'?'Beat':'Song'],['Artists',artistsOf(t).join(', ')],['Duration',t.duration],['Added',fmtDate(t.added)],['Album',t.album],['Genre',t.genre],['BPM',t.bpm],['Key',t.key],['Year',t.year],['Producer',t.producer],['Composer',t.composer],['Copyright',t.copyright]].filter(x=>x[1]);
+            document.getElementById('meta-container').innerHTML=PLAYLIST.map((t,i)=>{ if(!matchesFilter(t))return ''; const f=[['Type',t.type==='beat'?'Beat':'Song'],['Status',t.type==='beat'?(isSold(t)?'Sold':'Available'):''],['Artists',artistsOf(t).join(', ')],['Duration',t.duration],['Added',fmtDate(t.added)],['Album',t.album],['Genre',t.genre],['BPM',t.bpm],['Key',t.key],['Year',t.year],['Producer',t.producer],['Composer',t.composer],['Copyright',t.copyright]].filter(x=>x[1]);
                 return `<div class="glass-panel rounded-2xl border border-slate-800/60 p-4 flex gap-4"><img src="${esc(t.cover)}" alt="" class="w-24 h-24 rounded-xl object-cover shrink-0 border border-slate-700/50"><div class="min-w-0 flex-1"><h4 class="text-sm font-bold text-white truncate">${esc(t.title)}</h4><div class="mt-2 grid grid-cols-2 gap-x-4 gap-y-2">${f.map(x=>`<div class="min-w-0"><div class="text-[10px] uppercase tracking-wider text-slate-500">${x[0]}</div><div class="text-xs text-slate-200 truncate">${esc(x[1])}</div></div>`).join('')}</div></div></div>`; }).join('');
-            document.getElementById('meta-count').textContent=PLAYLIST.length+(PLAYLIST.length===1?' Track':' Tracks');
+            const shown=PLAYLIST.filter(matchesFilter).length; document.getElementById('meta-count').textContent=shown+(shown===1?' Track':' Tracks');
         }
         // Playlist data belongs to the signed browser session and is always hydrated from the API.
         let userPlaylists=[], selectedPlaylistId=null, playlistAddTrackId=null, playlistLoading=false;
@@ -781,7 +843,7 @@
         async function loadTrack(i){
             const requestId = ++audioLoadRequest;
             currentTrackIndex = i; const t = PLAYLIST[i];
-            mainAlbumArt.src = t.cover; playerThumb.src = t.cover; heroTrackTitle.textContent = t.title; heroTrackArtist.textContent = t.artist; playerTitle.textContent = t.title; playerArtist.textContent = t.artist; document.getElementById('orb-1').style.backgroundColor = t.color; renderPlaylist();
+            mainAlbumArt.src = t.cover; playerThumb.src = t.cover; heroTrackTitle.textContent = t.title; heroTrackArtist.textContent = t.artist; playerTitle.textContent = t.title; playerArtist.textContent = t.artist; document.getElementById('orb-1').style.backgroundColor = t.color; renderPlaylist(); syncHeroMedia();
             try {
                 const url = await secureAudioUrl(t);
                 if (requestId !== audioLoadRequest) return false;
@@ -852,6 +914,41 @@
             setTimeout(()=>{ audioRecoveryAttempts=0; }, 3000);
         });
         audioPlayer.addEventListener('ended',()=>nextBtn.click());
+
+        // ---- Cover / Animated toggle (Spotify-style) ------------------------------------------
+        const COVER_MODE_KEY = 'akt-media-cover-mode';
+        let coverMode = 'cover';
+        try { if (localStorage.getItem(COVER_MODE_KEY) === 'animated') coverMode = 'animated'; } catch (_) {}
+        const albumVideo = document.getElementById('main-album-video'), albumUnavailable = document.getElementById('main-album-unavailable'), heroStatusBadge = document.getElementById('hero-status-badge');
+        function syncHeroMedia(){
+            const t = PLAYLIST[currentTrackIndex]; if (!t) return;
+            const animated = coverMode === 'animated', hasAnimation = Boolean(t.animation);
+            document.querySelectorAll('[data-cover-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.coverMode === coverMode)));
+            if (heroStatusBadge) heroStatusBadge.innerHTML = statusBadge(t);
+            albumUnavailable.style.display = animated && !hasAnimation ? 'flex' : 'none';
+            if (animated && hasAnimation) {
+                if (albumVideo.dataset.src !== t.animation) { albumVideo.dataset.src = t.animation; albumVideo.src = t.animation; albumVideo.load(); }
+                albumVideo.style.display = 'block';
+                if (!audioPlayer.paused && !audioPlayer.ended) albumVideo.play().catch(() => {}); else albumVideo.pause();
+            } else {
+                albumVideo.pause(); albumVideo.style.display = 'none';
+                if (!hasAnimation && albumVideo.dataset.src) { delete albumVideo.dataset.src; albumVideo.removeAttribute('src'); albumVideo.load(); }
+            }
+        }
+        document.querySelectorAll('[data-cover-mode]').forEach(b => b.addEventListener('click', () => {
+            coverMode = b.dataset.coverMode;
+            try { localStorage.setItem(COVER_MODE_KEY, coverMode); } catch (_) {}
+            syncHeroMedia();
+        }));
+        ['play', 'playing', 'pause', 'ended'].forEach(name => audioPlayer.addEventListener(name, syncHeroMedia));
+        // Beats start with an unknown length; fill it in once the audio reports it.
+        audioPlayer.addEventListener('loadedmetadata', () => {
+            const t = PLAYLIST[currentTrackIndex];
+            if (!t || !isFinite(audioPlayer.duration)) return;
+            const d = formatTime(audioPlayer.duration);
+            if (t.duration !== d) { t.duration = d; renderPlaylist(); }
+        });
+        syncHeroMedia();
     </script>
 </body>
 </html>
